@@ -2,7 +2,7 @@
 **/__pycache__
 **/*.pyc
 .env*
-.git
+#.git
 .idea
 .pytest_cache
 .python-version

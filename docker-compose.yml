@@ -2,31 +2,34 @@
 #
 # Setup a custom entry in /etc/hosts for localhost (e.g. mediawiki)
 # then access via "http://mediawiki"
-version: "3"
 services:
   mediawiki:
-    image: mediawiki
+    image: mediawiki:1.41.1
     restart: always
     links:
       - database
     ports:
       - 80:80
+    networks:
+      - mw-network
     volumes:
       - ./mediawiki/images:/var/www/html/images
-      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
-      - ./mediawiki/extensions/Collection:/var/www/html/extensions/Collection
+        #      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./mediawiki/extensions:/var/www/html/extensions
       - ./cache:/app/cache
 
   database:
-    image: mariadb
+    image: mariadb:11.6.2
     restart: always
     environment:
-      MYSQL_DATABASE: my_wiki
-      MYSQL_USER: wikiuser
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MARIADB_DATABASE: my_wiki
+      MARIADB_USER: wikiuser
+      MARIADB_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: password
     ports:
       - 3306:3306
+    networks:
+      - mw-network
     volumes:
       - db:/var/lib/mysql
 
@@ -42,6 +45,8 @@ services:
       dockerfile: docker/QServe.Dockerfile
     ports:
       - "8090:8090"
+    networks:
+      - mw-network
     depends_on:
       - base
     expose:
@@ -53,6 +58,8 @@ services:
       dockerfile: docker/JobDispatcher.Dockerfile
     ports:
       - "8899:8899"
+    networks:
+      - mw-network
     depends_on:
       - base
       - q_serve
@@ -73,6 +80,8 @@ services:
     depends_on:
       - base
       - q_serve
+    networks:
+      - mw-network
     volumes:
       - ./cache:/app/cache
       
@@ -91,9 +100,16 @@ services:
       --numprocs 2
       --url http://render_worker:9123/cache
       -s makezip
+    networks:
+      - mw-network
     volumes:
       - ./cache:/app/cache
 
 volumes:
   db:
   mediawiki:
+
+networks:
+  mw-network:
+    driver: bridge
+
