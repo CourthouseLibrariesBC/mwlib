@@ -27,7 +27,8 @@ To shut down, run:
 
 ### Source Build
 
-To build mwlib, ensure you have the following software installed:
+To build mwlib from source, ensure you have the following software installed:
+
 - Python (version 3.8 or later)
 - Ploticus
 - re2c
