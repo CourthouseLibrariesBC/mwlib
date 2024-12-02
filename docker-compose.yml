@@ -2,27 +2,43 @@
 #
 # Setup a custom entry in /etc/hosts for localhost (e.g. mediawiki)
 # then access via "http://mediawiki"
+#
+# Edit the .env file with your PUBLIC_HOSTNAME 
+#
+
 services:
   mediawiki:
-    image: mediawiki:1.41.1
+    build:
+      context: .
+      dockerfile: docker/Mediawiki.Dockerfile
+      # These settings should match the wiki-database service variables
+      args:
+        WIKI_NAME: My Wiki
+        WIKI_ADMIN_PASSWORD: asdf!@#%ASDF1234
+        PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+        DB_SERVER: wiki-database
+        DB_NAME: wikidb
+        DB_USER: wikiuser
+        DB_PASSWORD: password
+        DB_ROOT_PASSWORD: password
     restart: always
-    links:
-      - database
+    depends_on:
+      - wiki-database
     ports:
       - 80:80
     networks:
       - mw-network
     volumes:
       - ./mediawiki/images:/var/www/html/images
-        #      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
       - ./mediawiki/extensions:/var/www/html/extensions
       - ./cache:/app/cache
 
-  database:
+  wiki-database:
     image: mariadb:11.6.2
     restart: always
     environment:
-      MARIADB_DATABASE: my_wiki
+      MARIADB_DATABASE: wikidb
       MARIADB_USER: wikiuser
       MARIADB_PASSWORD: password
       MARIADB_ROOT_PASSWORD: password
