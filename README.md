@@ -47,7 +47,7 @@ To shut down, run:
 
 
 
-License
+## License
 
 Copyright (c) 2007-2012 PediaPress GmbH
 
