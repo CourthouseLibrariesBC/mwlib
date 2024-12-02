@@ -4,9 +4,29 @@
 **mwlib** is a versatile library designed for parsing MediaWiki articles and converting them to various output formats. A notable application of mwlib is in Wikipedia's "Print/export" feature, where it is used to create PDF documents from Wikipedia articles.
 
 
-## Getting Started
+## Installation
 
-### Prerequisites
+### Docker
+
+The docker version is easier to install and maintain. First, create a `.env` file with:
+
+```
+PUBLIC_HOSTNAME=127.0.0.1
+```
+
+And then run:
+
+    $ docker compose up --build
+
+You can leave `--build` off in subsequent runs to maintain the existing installation.
+
+To shut down, run:
+
+    $ docker compose down
+
+
+### Source Build
+
 To build mwlib, ensure you have the following software installed:
 - Python (version 3.8 or later)
 - Ploticus
@@ -32,25 +52,6 @@ Documentation
 
 Please visit http://mwlib.readthedocs.org/en/latest/index.html for
 detailed documentation.
-
-## Docker Compose Setup
-
-To build and use the docker version, add a `.env` file with:
-
-```
-PUBLIC_HOSTNAME=127.0.0.1
-```
-
-And run:
-
-    $ docker compose up --build
-
-You can leave `--build` off in subsequent runs to maintain the existing installation.
-
-To shut down, run:
-
-    $ docker compose down
-
 
 
 ## License
