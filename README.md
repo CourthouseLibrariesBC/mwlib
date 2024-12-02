@@ -34,7 +34,17 @@ Please visit http://mwlib.readthedocs.org/en/latest/index.html for
 detailed documentation.
 
 ## Docker Compose Setup
-For users interested in setting up mwlib using Docker Compose, detailed instructions are available at [Docker Compose documentation](https://docs.docker.com/compose/).
+
+To build and use the docker version, run:
+
+    $ docker compose up --build
+
+You can leave `--build` off in subsequent runs to maintain the existing installation.
+
+To shut down, run:
+
+    $ docker compose down
+
 
 
 License
