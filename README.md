@@ -35,7 +35,13 @@ detailed documentation.
 
 ## Docker Compose Setup
 
-To build and use the docker version, run:
+To build and use the docker version, add a `.env` file with:
+
+```
+PUBLIC_HOSTNAME=127.0.0.1
+```
+
+And run:
 
     $ docker compose up --build
 
