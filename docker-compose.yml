@@ -12,27 +12,34 @@ services:
       context: .
       dockerfile: docker/Mediawiki.Dockerfile
       # These settings should match the wiki-database service variables
-      args:
-        WIKI_NAME: My Wiki
-        WIKI_ADMIN_PASSWORD: asdf!@#%ASDF1234
-        PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
-        DB_SERVER: wiki-database
-        DB_NAME: wikidb
-        DB_USER: wikiuser
-        DB_PASSWORD: password
-        DB_ROOT_PASSWORD: password
     restart: always
+    # TODO: start here
+    # command:
+      # See also CMD, ENTRYPOINT
     depends_on:
       - wiki-database
     ports:
       - 80:80
-    networks:
-      - mw-network
     volumes:
       - ./mediawiki/images:/var/www/html/images
-      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
+        #- ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
       - ./mediawiki/extensions:/var/www/html/extensions
       - ./cache:/app/cache
+      - ./clicklaw/init.sh:/init.sh
+        #entrypoint:
+        # - /init.sh
+    environment:
+      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+      WIKI_NAME: ${WIKI_NAME}
+      WIKI_ADMIN_PASSWORD: ${WIKI_ADMIN_PASSWORD}
+      DB_SERVER: ${DB_SERVER}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    command: sh -c /init.sh
+      #- apache2-foreground;
+
 
   wiki-database:
     image: mariadb:11.6.2
@@ -44,10 +51,27 @@ services:
       MARIADB_ROOT_PASSWORD: password
     ports:
       - 3306:3306
-    networks:
-      - mw-network
     volumes:
       - db:/var/lib/mysql
+  
+        #  wiki-init:
+        #    build:
+        #      context: .
+        #      dockerfile: docker/Clicklaw.Dockerfile
+        #    volumes:
+        #      - ./clicklaw/init.sh:/init.sh
+        #    depends_on:
+        #      - wiki-database
+        #    environment:
+        #      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+        #      WIKI_NAME: ${WIKI_NAME}
+        #      WIKI_ADMIN_PASSWORD: ${WIKI_ADMIN_PASSWORD}
+        #      DB_SERVER: ${DB_SERVER}
+        #      DB_NAME: ${DB_NAME}
+        #      DB_USER: ${DB_USER}
+        #      DB_PASSWORD: ${DB_PASSWORD}
+        #      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+        #    command: sh -c /init.sh
 
   base:
     build:
@@ -55,77 +79,8 @@ services:
       dockerfile: docker/Dockerfile.base
     image: mw-base
 
-  q_serve:
-    build:
-      context: .
-      dockerfile: docker/QServe.Dockerfile
-    ports:
-      - "8090:8090"
-    networks:
-      - mw-network
-    depends_on:
-      - base
-    expose:
-      - "8090"
-
-  job_dispatcher:
-    build:
-      context: .
-      dockerfile: docker/JobDispatcher.Dockerfile
-    ports:
-      - "8899:8899"
-    networks:
-      - mw-network
-    depends_on:
-      - base
-      - q_serve
-    expose:
-      - "8899"
-
-  zip_worker:
-    build:
-      context: .
-      dockerfile: docker/Worker.Dockerfile
-    command: >
-      nslave 
-      --cachedir /app/cache 
-      --host q_serve 
-      --port 8090
-      --numprocs 2 
-      -c makezip
-    depends_on:
-      - base
-      - q_serve
-    networks:
-      - mw-network
-    volumes:
-      - ./cache:/app/cache
-      
-  render_worker:
-    build:
-      context: .
-      dockerfile: docker/Worker.Dockerfile
-    depends_on:
-      - base
-      - q_serve
-    command: >
-      nslave
-      --cachedir /app/cache
-      --host q_serve
-      --port 8090
-      --numprocs 2
-      --url http://render_worker:9123/cache
-      -s makezip
-    networks:
-      - mw-network
-    volumes:
-      - ./cache:/app/cache
 
 volumes:
   db:
   mediawiki:
-
-networks:
-  mw-network:
-    driver: bridge
 
