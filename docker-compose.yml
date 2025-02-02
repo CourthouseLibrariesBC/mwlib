@@ -22,10 +22,10 @@ services:
       - 80:80
     volumes:
       - ./mediawiki/images:/var/www/html/images
-        #- ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
       - ./mediawiki/extensions:/var/www/html/extensions
-      - ./cache:/app/cache
+      - ./clicklaw/defaults/LocalSettings.php:/var/www/html/defaults/LocalSettings.php
       - ./clicklaw/init.sh:/init.sh
+      - ./cache:/app/cache
         #entrypoint:
         # - /init.sh
     environment:
@@ -37,7 +37,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-    command: sh -c /init.sh
+      #command: sh -c /init.sh
       #- apache2-foreground;
 
 
