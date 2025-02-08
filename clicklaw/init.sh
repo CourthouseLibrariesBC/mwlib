@@ -4,13 +4,14 @@ UPGRADE_KEY_FILE=upgrade-key.html
 LOCAL_SETTINGS=LocalSettings.php
 EXTENSIONS_DIR=/var/www/html/extensions/
 EXTENSIONS_URL=https://extdist.wmflabs.org/dist/extensions
+DATA_FILE=mediawiki_full_backup.sql
 
-echo Waiting for database...
+echo "Waiting for database..."
+
 sleep 5
 
 echo "Initializing Clicklaw..."
 
-# PUBLIC_IP=$(curl -s ifconfig.me)
 
 # Install extensions
 
@@ -39,6 +40,7 @@ rm *.tar.gz
 
 cd -
 
+
 # Install default LocalSetting.php
 
 php maintenance/install.php --dbname=${DB_NAME} --dbserver=${DB_SERVER} --dbport=3306 --dbuser=${DB_USER} --dbpass="${DB_PASSWORD}" --pass="${WIKI_ADMIN_PASSWORD}" "${WIKI_NAME}" "Admin"
@@ -50,51 +52,49 @@ cp defaults/LocalSettings.php LocalSettings.php
 ##sed -i -E "/wgResourceBasePath =/d" ${LOCAL_SETTINGS}
 ##sed -i -E "s/wgScriptPath = \"\/html\"/wgScriptPath = \"\/html\"/g" ${LOCAL_SETTINGS}
 
-sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
+#cat "\n\n\$wgScript = \"\/html/index.php\"" >> ${LOCAL_SETTINGS}
+
+##echo "\$wgLoadScript = \"/load.php\";" >> ${LOCAL_SETTINGS}
+
+sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"http:\/\/${DOCKER_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = \"${DOCKER_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
 
 sed -i -E "s/wgDBserver = \"[^\"]*\"/wgDBserver = \"${DB_SERVER}\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgDBname = \"[^\"]*\"/wgDBname = \"${DB_NAME}\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgDBuser = \"[^\"]*\"/wgDBuser = \"${DB_USER}\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgDBpassword = \"[^\"]*\"/wgDBpassword = \"${DB_PASSWORD}\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgBrowserFormatDetection=(.*);/wgBrowserFormatDetection = \"\1\";/g" ${LOCAL_SETTINGS}
 
-
-#cat "\n\n\$wgScript = \"\/html/index.php\"" >> ${LOCAL_SETTINGS}
-
-##echo "\$wgLoadScript = \"/load.php\";" >> ${LOCAL_SETTINGS}
-
-# UpgradeKey fishing
-
+echo "Updating MediaWiki database..."
 php maintenance/update.php
 
-#echo curl -L -s -b cookies.txt -c cookies.txt -X POST -H "Content-Type: application/x-www-form-urlencoded" -o ${UPGRADE_KEY_FILE} http://${PUBLIC_HOSTNAME}/mw-config/index.php?page=ExistingWiki
-#curl -L -s -b cookies.txt -c cookies.txt -X POST -H "Content-Type: application/x-www-form-urlencoded" -o ${UPGRADE_KEY_FILE} http://${PUBLIC_HOSTNAME}/mw-config/index.php?page=ExistingWiki
-
-# Second request generates key prompt
-
-#sleep 1
-#curl -L -s -b cookies.txt -c cookies.txt -X POST -H "Content-Type: application/x-www-form-urlencoded" -o ${UPGRADE_KEY_FILE} http://${PUBLIC_HOSTNAME}/mw-config/index.php?page=ExistingWiki
-
+# UpgradeKey
+#curl -L -s -b cookies.txt -c cookies.txt -X POST -H "Content-Type: application/x-www-form-urlencoded" -o ${UPGRADE_KEY_FILE} http://${DOCKER_HOSTNAME}/mw-config/index.php?page=ExistingWiki
 #rm cookies.txt
-
 #UPGRADE_KEY=`grep UpgradeKey ${LOCAL_SETTINGS}`
-
-#echo $UPGRADE_KEY > ${UPGRADE_KEY_FILE}
-
 # eg: $wgUpgradeKey = '066c9247965445f2'
-#UPGRADE_KEY=`sed -nE 's/.*UpgradeKey = "(.*)".*/\1/p' ${UPGRADE_KEY_FILE}`
-
-#echo UPGRADE_KEY: $UPGRADE_KEY
-
+UPGRADE_KEY=`sed -nE 's/.*UpgradeKey = "(.*)".*/\1/p' ${UPGRADE_KEY_FILE}`
 #echo "\n\n\$wgUpgradeKey = '${UPGRADE_KEY}';" >> LocalSettings.php
 
-##wget -q https://wiki.clicklaw.bc.ca/ml/wiki-dump.xml -O wiki-dump.xml
+echo "Importing wiki data..."
 
-##php maintenance/importDump.php wiki-dump.xml
+mkdir /app/data_import
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+touch ~/.ssh/known_hosts
+chmod 644 ~/.ssh/known_hosts
+ssh-keyscan -H "$PRODUCTION_HOSTNAME" >> ~/.ssh/known_hosts
+rsync -e "ssh -i /app/.ssh/id_clicklaw_docker_data" --progress --archive $SCP_USER@$PRODUCTION_HOSTNAME:~/$DATA_FILE /app/data_import/
 
-#while true; do
-#	sleep 1
-#done	
+mysql -u $DB_USER -p$DB_PASSWORD -h $DB_SERVER $DB_NAME < /app/data_import/$DATA_FILE
+
+#php maintenance/importDump.php /app/data_import/$DATA_FILE
+
+## SCP the data and image files
+
+echo "Importing image data..."
+rsync -e "ssh -i /app/.ssh/id_clicklaw_docker_data" --progress --archive $SCP_USER@$PRODUCTION_HOSTNAME:~/images/* /var/www/html/images/
+
 
 apache2-foreground
 

@@ -6,15 +6,18 @@ RUN apt-get update && \
       -o Acquire::BrokenProxy="true" \
       -o Acquire::http::No-Cache="true" \
       -o Acquire::http::Pipeline-Depth="0" \
-      -y install wget man vim curl iputils-ping imagemagick
+      -y install wget man vim curl iputils-ping imagemagick openssh-client rsync mariadb-client
 
-#COPY clicklaw/defaults/LocalSettings.php LocalSettings.php
+ARG PRODUCTION_HOSTNAME 
+ARG SCP_USER
+
+# Keys are not available in the repo.
+# Request them from your admin.
+COPY clicklaw/keys/* /app/.ssh/
 
 # Set entrypoint to execute the install script before starting Apache
-#ENTRYPOINT ["/init.sh"]
 ENTRYPOINT ["docker-php-entrypoint"]
 
 # Default command (start Apache)
-#CMD ["apache2-foreground"]
 CMD ["/init.sh"]
 
