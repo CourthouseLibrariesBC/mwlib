@@ -59,11 +59,6 @@ def finish_render(writer, options, zip_filename, status):
     if hasattr(writer, "file_extension"):
         kwargs["file_extension"] = writer.file_extension
 
-    # TODO: Remove hardcoding
-    # if hasattr(options, "url"):
-    #     kwargs["url"] = "/cache/cf/cf7f066a7f269972/output.pdf" #options["url"]
-    #     kwargs["download_url"] = kwargs["url"]
-
     # Use values from options if available, otherwise fallback to defaults
     url = options.get("url")
     if not url and "output" in options:
