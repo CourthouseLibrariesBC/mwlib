@@ -1,4 +1,4 @@
-FROM mw-base
+FROM base
 
 EXPOSE 8090
 

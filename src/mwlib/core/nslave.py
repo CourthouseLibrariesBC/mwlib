@@ -16,7 +16,7 @@ from bottle import default_app, route, static_file
 
 from mwlib.utils import myjson, argv
 from mwlib.utils.unorganized import garble_password
-from qs import proc, slave
+from qs import proc, nslave
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ class Commands:
                 zip_path,
                 "-m",
                 metabook_path,
-                "--status",
+                "--status-file",
                 self.statusfile(),
             ]
             if base_url:
@@ -207,7 +207,7 @@ class Commands:
                 getpath("collection.zip"),
                 "-o",
                 outfile,
-                "--status",
+                "--status-file",
                 self.statusfile(),
             ]
 
@@ -299,7 +299,7 @@ def main():
 
     make_cachedir(CACHE_DIR)
 
-    slave.main(Commands, numgreenlets=numgreenlets, argv=args)
+    nslave.main(Commands, numgreenlets=numgreenlets, argv=args)
 
 
 if __name__ == "__main__":

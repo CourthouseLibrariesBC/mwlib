@@ -58,6 +58,7 @@ def finish_render(writer, options, zip_filename, status):
         kwargs["content_type"] = writer.content_type
     if hasattr(writer, "file_extension"):
         kwargs["file_extension"] = writer.file_extension
+    #kwargs["url"] = "http://job_dispatcher:8899/cache/cf/cf7f066a7f269972/output.rl"
     status(status="finished", progress=100, **kwargs)
     keep_zip = options.get("keep_zip")
     if keep_zip is None and zip_filename is not None:

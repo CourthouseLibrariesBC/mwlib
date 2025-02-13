@@ -227,6 +227,8 @@ def get_content_disposition(filename, ext):
         disposition += f";filename*=UTF-8''{urllib.parse.quote(utf8_fn)}.{ext}"
     return disposition
 
+def get_internal_base_url(default_url):
+    return os.environ.get("MW_BASE_URL", default_url)
 
 class Application:
     def __init__(self, default_writer="rl"):
@@ -301,23 +303,13 @@ class Application:
         collection_id = make_collection_id(post_data)
         return collection_id
 
-    def is_good_baseurl(self, url):
-        netloc = urllib.parse.urlparse(url)[1].split(":")[0].lower()
-        if (
-            netloc == "localhost"
-            or netloc.startswith("127.0.")
-            or netloc.startswith("192.168.")
-        ):
-            return False
-        return True
-
     def _get_params(self, post_data, collection_id):
         get = post_data.get
         params = Bunch()
         params.__dict__ = {
             "metabook_data": get("metabook"),
             "writer": get("writer", self.default_writer),
-            "base_url": get("base_url"),
+            "base_url": get_internal_base_url(get("base_url")),
             "writer_options": get("writer_options", ""),
             "login_credentials": get("login_credentials", ""),
             "force_render": bool(get("force_render")),
@@ -347,14 +339,6 @@ class Application:
         if not is_new and metabook_data:
             return self.error_response(
                 "Specify either metabook or collection_id, not both"
-            )
-
-        if base_url and not self.is_good_baseurl(base_url):
-            log.bad(f"bad base_url: {base_url!r}")
-            return self.error_response(
-                "bad base_url {!r}. check your $wgServer and $wgScriptPath variables. localhost, 192.168.*.* and 127.0.*.* are not allowed.".format(
-                    base_url
-                )
             )
 
         log.info(f"render {collection_id} {writer}")

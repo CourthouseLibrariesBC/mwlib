@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: HTML",
     "Topic :: Text Processing :: Markup :: XML",
 ]
-license = "BSD-3-Clause"
+license = { text = "BSD-3-Clause" }
 
 [project.urls]
 homepage = "https://code.pediapress.com/"
@@ -43,6 +43,9 @@ postman = "mwlib.core.main_trampoline:postman_main"
 mw-zip = "mwlib.apps.buildzip:main"
 mw-version = "mwlib._version:main"
 mw-render = "mwlib.apps.render:main"
+mw-qserve = "qs.qserve:main"
+nslave = "mwlib.core.nslave:main"
+nserve = "mwlib.core.nserve:main"
 
 [tool.ruff]
 force-exclude = true
@@ -120,3 +123,4 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
+

@@ -3,11 +3,48 @@
 ## Overview
 **mwlib** is a versatile library designed for parsing MediaWiki articles and converting them to various output formats. A notable application of mwlib is in Wikipedia's "Print/export" feature, where it is used to create PDF documents from Wikipedia articles.
 
+This fork of **mwlib** was created to manage the Clicklaw Wiki publishing system.
 
-## Getting Started
+## Installation
 
-### Prerequisites
-To build mwlib, ensure you have the following software installed:
+### Docker
+
+The docker version is easier to install and maintain. First, create a `.env` file with:
+
+```
+PUBLIC_HOSTNAME=127.0.0.1
+PRODUCTION_HOSTNAME=whatever.com
+DATA_IMPORT_USER=remote_docker_data_user
+WIKI_NAME=Wikibooks
+DB_SERVER=wiki-database
+DB_NAME=wikidb
+DB_USER=wikiuser
+DB_PASSWORD=password
+DB_ROOT_PASSWORD=password
+SMTP_HOST=smtp.server.com
+SMTP_PORT=587
+SMTP_AUTH=true
+SMTP_USER=admin@whatever.com
+SMTP_PASS=password
+```
+
+The `PRODUCTION_HOSTNAME` and `DATA_IMPORT_USER` variables are used for copying live production data down to your docker during build. You will need to place SSH keys in `/mediawiki/keys/` and name them `id_docker_data` and `id_docker_data.pub`.
+
+And then run:
+
+    $ docker compose up --build
+
+You can leave `--build` off in subsequent runs to maintain the existing installation.
+
+To shut down, run:
+
+    $ docker compose down
+
+
+### Source Build
+
+To build mwlib from source, ensure you have the following software installed:
+
 - Python (version 3.8 or later)
 - Ploticus
 - re2c
@@ -33,11 +70,8 @@ Documentation
 Please visit http://mwlib.readthedocs.org/en/latest/index.html for
 detailed documentation.
 
-## Docker Compose Setup
-For users interested in setting up mwlib using Docker Compose, detailed instructions are available at [Docker Compose documentation](https://docs.docker.com/compose/).
 
-
-License
+## License
 
 Copyright (c) 2007-2012 PediaPress GmbH
 

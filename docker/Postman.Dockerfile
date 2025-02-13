@@ -1,4 +1,4 @@
-FROM mw-base
+FROM base
 
 WORKDIR /app
 ENV PORT=8899

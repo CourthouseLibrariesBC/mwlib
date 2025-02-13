@@ -2,114 +2,126 @@
 #
 # Setup a custom entry in /etc/hosts for localhost (e.g. mediawiki)
 # then access via "http://mediawiki"
-version: "3"
+#
+# Edit the .env file with your PUBLIC_HOSTNAME 
+#
+
 services:
   mediawiki:
-    image: mediawiki
+    build:
+      context: .
+      dockerfile: docker/Mediawiki.Dockerfile
     restart: always
-    links:
-      - database
+    # TODO: start here
+    # command:
+      # See also CMD, ENTRYPOINT
+    depends_on:
+      - wiki-database
     ports:
       - 8080:80
     volumes:
       - ./mediawiki/images:/var/www/html/images
-      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
-      - ./mediawiki/extensions/Collection:/var/www/html/extensions/Collection
+      - ./mediawiki/extensions:/var/www/html/extensions
+      - ./mediawiki/defaults/LocalSettings.default:/var/www/html/defaults/LocalSettings.default
+      - ./mediawiki/init.sh:/init.sh
       - ./cache:/app/cache
+    environment:
+      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+      WIKI_NAME: ${WIKI_NAME}
+      WIKI_ADMIN_PASSWORD: ${WIKI_ADMIN_PASSWORD}
+      PRODUCTION_HOSTNAME: ${PRODUCTION_HOSTNAME}
+      DATA_IMPORT_USER: ${DATA_IMPORT_USER}
+      DB_SERVER: ${DB_SERVER}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      EMAIL_CONTACT: ${EMAIL_CONTACT}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
 
-  database:
-    image: mariadb
+
+  wiki-database:
+    image: mariadb:11.6.2
     restart: always
     environment:
-      MYSQL_DATABASE: my_wiki
-      MYSQL_USER: wikiuser
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
       - 3306:3306
     volumes:
       - db:/var/lib/mysql
-#
-  #base:
-  #  build:
-  #    context: .
-  #    dockerfile: docker/Dockerfile.base
-  #  image: mw-base
-#
-  #q_serve:
-  #  build:
-  #    context: .
-  #    dockerfile: docker/QServe.Dockerfile
-  #  ports:
-  #    - "8090:8090"
-  #  depends_on:
-  #    - base
-  #  expose:
-  #    - "8090"
-  #  volumes:
-  #    - ./cache:/app/cache
-#
-  #    
-  #job_dispatcher:
-  #  build:
-  #    context: .
-  #    dockerfile: docker/JobDispatcher.Dockerfile
-  #  ports:
-  #    - "8899:8899"
-  #  depends_on:
-  #    - base
-  #    - q_serve
-  #  expose:
-  #    - "8899"
-  #  extra_hosts:
-  #    - "pediapress.com:host-gateway"
-#
-  #zip_worker:
-  #  build:
-  #    context: .
-  #    dockerfile: docker/Worker.Dockerfile
-  #  command: >
-  #    nslave 
-  #    --cachedir /app/cache 
-  #    --host q_serve 
-  #    --port 8090
-  #    --numprocs 2 
-  #    -c makezip
-  #  depends_on:
-  #    - base
-  #    - q_serve
-  #  volumes:
-  #    - ./cache:/app/cache
-  #    
-  #render_worker:
-  #  build:
-  #    context: .
-  #    dockerfile: docker/Worker.Dockerfile
-  #  depends_on:
-  #    - base
-  #    - q_serve
-  #  command: >
-  #    nslave
-  #    --cachedir /app/cache
-  #    --host q_serve
-  #    --port 8090
-  #    --numprocs 2
-  #    --url http://render_worker:9123/cache
-  #    -s makezip
-  #  volumes:
-  #    - ./cache:/app/cache
 
-  reverse_proxy:
-    image: nginx
+  base:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.base
+    image: base
+
+  q_serve:
+    build:
+      context: .
+      dockerfile: docker/QServe.Dockerfile
     ports:
-      - "80:80"
+      - "8090:8090"
+    depends_on:
+      - base
     expose:
-      - "80"
+      - "8090"
+
+  zip_worker:
+    build:
+      context: .
+      dockerfile: docker/Worker.Dockerfile
+    command: >
+      nslave 
+      --cachedir /app/cache 
+      --host q_serve 
+      --port 8090
+      --numprocs 2 
+      -c makezip
+    depends_on:
+      - base
+      - q_serve
     volumes:
-      - ./nginx:/etc/nginx/conf.d
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ./cache:/app/cache
+
+  job_dispatcher:
+    build:
+      context: .
+      dockerfile: docker/JobDispatcher.Dockerfile
+    environment:
+      MW_BASE_URL: "http://mediawiki:8080/"
+    ports:
+      - "8899:8899"
+    depends_on:
+      - base
+      - q_serve
+    expose:
+      - "8899"
+
+  render_worker:
+    build:
+      context: .
+      dockerfile: docker/Worker.Dockerfile
+    depends_on:
+      - base
+      - q_serve
+    command: >
+      nslave
+      --cachedir /app/cache
+      --host q_serve
+      --port 8090
+      --numprocs 2
+      --url http://render_worker:9123/cache
+      -c render
+    volumes:
+      - ./cache:/app/cache
 
 volumes:
   db:
   mediawiki:
+
