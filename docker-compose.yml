@@ -2,34 +2,59 @@
 #
 # Setup a custom entry in /etc/hosts for localhost (e.g. mediawiki)
 # then access via "http://mediawiki"
-version: "3"
+#
+# Edit the .env file with your PUBLIC_HOSTNAME 
+#
+
 services:
   mediawiki:
-    image: mediawiki
+    build:
+      context: .
+      dockerfile: docker/Mediawiki.Dockerfile
     restart: always
-    links:
-      - database
+    # TODO: start here
+    # command:
+      # See also CMD, ENTRYPOINT
+    depends_on:
+      - wiki-database
     ports:
       - 80:80
     volumes:
       - ./mediawiki/images:/var/www/html/images
-      - ./mediawiki/LocalSettings.php:/var/www/html/LocalSettings.php
-      - ./mediawiki/extensions/Collection:/var/www/html/extensions/Collection
+      - ./mediawiki/extensions:/var/www/html/extensions
+      - ./mediawiki/defaults/LocalSettings.default:/var/www/html/defaults/LocalSettings.default
+      - ./mediawiki/init.sh:/init.sh
       - ./cache:/app/cache
+    environment:
+      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+      WIKI_NAME: ${WIKI_NAME}
+      WIKI_ADMIN_PASSWORD: ${WIKI_ADMIN_PASSWORD}
+      PRODUCTION_HOSTNAME: ${PRODUCTION_HOSTNAME}
+      DATA_IMPORT_USER: ${DATA_IMPORT_USER}
+      DB_SERVER: ${DB_SERVER}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      EMAIL_CONTACT: ${EMAIL_CONTACT}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
 
-  database:
-    image: mariadb
+
+  wiki-database:
+    image: mariadb:11.6.2
     restart: always
     environment:
-      MYSQL_DATABASE: my_wiki
-      MYSQL_USER: wikiuser
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MARIADB_DATABASE: wikidb
+      MARIADB_USER: wikiuser
+      MARIADB_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: password
     ports:
       - 3306:3306
     volumes:
       - db:/var/lib/mysql
-
+  
   base:
     build:
       context: .
@@ -38,26 +63,14 @@ services:
 
   q_serve:
     build:
-      context: .
-      dockerfile: docker/QServe.Dockerfile
+     context: .
+     dockerfile: docker/QServe.Dockerfile
     ports:
       - "8090:8090"
     depends_on:
       - base
     expose:
       - "8090"
-
-  job_dispatcher:
-    build:
-      context: .
-      dockerfile: docker/JobDispatcher.Dockerfile
-    ports:
-      - "8899:8899"
-    depends_on:
-      - base
-      - q_serve
-    expose:
-      - "8899"
 
   zip_worker:
     build:
@@ -75,7 +88,21 @@ services:
       - q_serve
     volumes:
       - ./cache:/app/cache
-      
+
+  job_dispatcher:
+    build:
+      context: .
+      dockerfile: docker/JobDispatcher.Dockerfile
+    ports:
+      - "8899:8899"
+    depends_on:
+      - base
+      - q_serve
+    expose:
+      - "8899"
+    extra_hosts:
+      - "pediapress.com:host-gateway"
+
   render_worker:
     build:
       context: .
@@ -97,3 +124,4 @@ services:
 volumes:
   db:
   mediawiki:
+

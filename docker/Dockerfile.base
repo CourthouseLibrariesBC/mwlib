@@ -21,6 +21,8 @@ COPY ./Makefile /app/
 COPY ./requirements /app/requirements
 COPY ./setup.py /app/
 COPY ./make-manifest /app
+COPY ./README.md /app
+COPY ./.git /app/.git
 COPY ./pyproject.toml /app
 
 ENV MWLIB_PYPROJECT_TOML=/app/pyproject.toml
@@ -29,8 +31,15 @@ WORKDIR /app
 
 COPY ./src /app/src
 
-RUN make install
+# Difficult to read and understand installation process when commands are spread between 
+# multiple files so I've brought out the Makefile install: lines here.
+# RUN make install
+RUN pip-compile-multi
+RUN pip install -r requirements/base.txt
+RUN pip install -r requirements/test.txt
+
 RUN python3 setup.py build
 RUN pip install .
+
 
 #Check for pyproject.toml in /usr/local/lib/python3.10/site-packages/mwlib-0.16.0-py3.10-linux-x86_64.egg/mwlib
