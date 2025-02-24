@@ -93,6 +93,20 @@ echo "Importing static files from production..."
 
 rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_HOSTNAME:~/images/* /var/www/html/images/
 
+# Prepare logs
+
+# Remove symlinks that redirect files to stdout and stderr
+rm /var/log/apache2/access.log
+rm /var/log/apache2/error.log
+rm /var/log/apache2/other_vhosts_access.log
+
+echo "<?php
+phpinfo();
+?>" > /var/www/html/info.php
+
+#echo "ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/apache2.conf
+#echo "CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/apache2.conf
+
 echo "Starting MediaWiki..."
 
 apache2-foreground

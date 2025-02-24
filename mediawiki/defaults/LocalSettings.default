@@ -13,11 +13,11 @@ $wgRunJobsAsync = false;
 $wgIncludeLegacyJavaScript = true;
 
 #For testing ONLY. do not leave active:
-#$_GET['debug'] = true;
-#$wgDebugToolbar = true;
-#$wgShowSQLErrors = true;
-#$wgDebugDumpSql  = true;
-#$wgEnableJavaScriptTest = true;
+$_GET['debug'] = true;
+$wgDebugToolbar = true;
+$wgShowSQLErrors = true;
+$wgDebugDumpSql  = true;
+$wgEnableJavaScriptTest = true;
 
 /**
  * The debug log file must never be publicly accessible because it
@@ -26,7 +26,9 @@ $wgIncludeLegacyJavaScript = true;
  * The filename is with the database name of the wiki.
  */
 # Testing for 1.35.2 install
-$wgDebugLogFile = "/home/clicklaw/wiki.clicklaw.bc.ca/logs/debug-{$wgDBname}.log";
+$wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
+
+$wgDebugLogGroups['Collection'] = "/var/log/apache2/debug-collection.log";
 
 # Protect against web entry
 if ( !defined( 'MEDIAWIKI' ) ) {
