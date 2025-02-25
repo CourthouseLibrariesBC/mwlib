@@ -104,10 +104,14 @@ echo "<?php
 phpinfo();
 ?>" > /var/www/html/info.php
 
+echo "log_errors = On
+error_log = '/var/log/php_errors.log'" > /usr/local/etc/php/php.ini
+
 #echo "ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/apache2.conf
 #echo "CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/apache2.conf
 
 echo "Starting MediaWiki..."
 
+#php-fpm
 apache2-foreground
 
