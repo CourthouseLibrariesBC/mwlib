@@ -29,6 +29,7 @@ $wgEnableJavaScriptTest = true;
 $wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
 
 $wgDebugLogGroups['Collection'] = "/var/log/apache2/debug-collection.log";
+$wgDebugLogGroups['Echo'] = '/var/log/pache2/debug-echo.log';
 
 # Protect against web entry
 if ( !defined( 'MEDIAWIKI' ) ) {
