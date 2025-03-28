@@ -46,10 +46,10 @@ services:
     image: mariadb:11.6.2
     restart: always
     environment:
-      MARIADB_DATABASE: wikidb
-      MARIADB_USER: wikiuser
-      MARIADB_PASSWORD: password
-      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
       - 3306:3306
     volumes:
