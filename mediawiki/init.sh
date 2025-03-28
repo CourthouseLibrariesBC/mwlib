@@ -8,7 +8,7 @@ DATA_FILE=mediawiki_full_backup.sql
 
 echo "Waiting for database..."
 
-sleep 5
+sleep 9
 
 echo "Installing extentions..."
 
@@ -44,6 +44,7 @@ cd -
 
 echo "Initializing database..."
 
+
 php maintenance/install.php --dbname=${DB_NAME} --dbserver=${DB_SERVER} --dbport=3306 --dbuser=${DB_USER} --dbpass="${DB_PASSWORD}" --pass="${WIKI_ADMIN_PASSWORD}" "${WIKI_NAME}" "Admin"
 
 echo "Generating and customizing LocalSettings.php..."
@@ -68,12 +69,8 @@ echo "Updating database..."
 php maintenance/update.php
 
 # UpgradeKey
-#curl -L -s -b cookies.txt -c cookies.txt -X POST -H "Content-Type: application/x-www-form-urlencoded" -o ${UPGRADE_KEY_FILE} http://${PUBLIC_HOSTNAME}/mw-config/index.php?page=ExistingWiki
-#rm cookies.txt
-#UPGRADE_KEY=`grep UpgradeKey ${LOCAL_SETTINGS}`
-# eg: $wgUpgradeKey = '066c9247965445f2'
-#UPGRADE_KEY=`sed -nE 's/.*UpgradeKey = "(.*)".*/\1/p' ${UPGRADE_KEY_FILE}`
-#echo "\n\n\$wgUpgradeKey = '${UPGRADE_KEY}';" >> LocalSettings.php
+UPGRADE_KEY=`openssl rand -hex 16`
+echo "\$wgUpgradeKey = '${UPGRADE_KEY}';" >> LocalSettings.php
 
 echo "Importing production data..."
 
