@@ -9,6 +9,7 @@ from io import StringIO
 
 import gevent
 import gevent.monkey
+gevent.monkey.patch_all()
 from qs.rpcclient import ServerProxy
 
 from mwlib import argv
@@ -20,7 +21,6 @@ from mwlib.utilities.log import root_logger
 
 logger = root_logger.getChild(__name__)
 CACHE_DIR = "cache"
-gevent.monkey.patch_all()
 
 
 def get_collection_dir(collection_id):

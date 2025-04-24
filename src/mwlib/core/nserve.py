@@ -301,13 +301,13 @@ class Application:
         return collection_id
 
     def is_good_baseurl(self, url):
-        netloc = six.moves.urllib.parse.urlparse(url)[1].split(":")[0].lower()
-        if (
-            netloc == "localhost"
-            or netloc.startswith("127.0.")
-            or netloc.startswith("192.168.")
-        ):
-            return False
+        #netloc = six.moves.urllib.parse.urlparse(url)[1].split(":")[0].lower()
+        #if (
+        #    netloc == "localhost"
+        #    or netloc.startswith("127.0.")
+        #    or netloc.startswith("192.168.")
+        #):
+        #    return False
         return True
 
     def _get_params(self, post_data, collection_id):
