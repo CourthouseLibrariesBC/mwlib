@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# If the init script has already run, start apache
+if [[ -e .installed ]]; then
+  apache2-foreground
+  exit
+fi
+
+# Else install all the things.
+
 UPGRADE_KEY_FILE=upgrade-key.html
 LOCAL_SETTINGS=LocalSettings.php
 EXTENSIONS_DIR=/var/www/html/extensions/
@@ -108,6 +116,8 @@ error_log = '/var/log/php_errors.log'" > /usr/local/etc/php/php.ini
 #echo "CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/apache2.conf
 
 echo "Starting MediaWiki..."
+
+touch .installed
 
 #php-fpm
 apache2-foreground
