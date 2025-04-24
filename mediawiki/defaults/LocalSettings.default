@@ -580,3 +580,8 @@ if ($devLive != "live"){
 
 $wgShowExceptionDetails = true;
 
+# UNCOMMENT TO DISABLE ALL EDITING
+#$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
+#$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
+#$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
+
