@@ -18,7 +18,6 @@ from qs.rpcclient import ServerProxy
 
 logger = logging.getLogger(__name__)
 CACHE_DIR = "cache"
-gevent.monkey.patch_all()
 
 
 def get_collection_dir(collection_id):
