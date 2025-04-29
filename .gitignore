@@ -6,6 +6,8 @@
 .mypy_cache
 .ruff_cache
 /cache
+certs/*
+mediawiki/keys
 *.so
 *.o
 *.pyc
