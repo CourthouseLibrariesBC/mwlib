@@ -12,12 +12,18 @@ $wgRunJobsAsync = false;
 #Added so importStyleSheet doesn't throw an error
 $wgIncludeLegacyJavaScript = true;
 
-#For testing ONLY. do not leave active:
-$_GET['debug'] = true;
-$wgDebugToolbar = true;
-$wgShowSQLErrors = true;
-$wgDebugDumpSql  = true;
-$wgEnableJavaScriptTest = true;
+$_GET['debug'] = false;
+$wgDebugToolbar = false;
+$wgShowSQLErrors = false;
+$wgDebugDumpSql  = false;
+$wgEnableJavaScriptTest = false;
+
+# Uncomment for debugging
+#$_GET['debug'] = true;
+#$wgDebugToolbar = true;
+#$wgShowSQLErrors = true;
+#$wgDebugDumpSql  = true;
+#$wgEnableJavaScriptTest = true;
 
 /**
  * The debug log file must never be publicly accessible because it
@@ -25,11 +31,13 @@ $wgEnableJavaScriptTest = true;
  * PHP script running within your Web server.
  * The filename is with the database name of the wiki.
  */
-# Testing for 1.35.2 install
-$wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
 
-$wgDebugLogGroups['Collection'] = "/var/log/apache2/debug-collection.log";
-$wgDebugLogGroups['Echo'] = '/var/log/pache2/debug-echo.log';
+$wgDebugLogFile = false;
+
+# Uncomment for logging
+#$wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
+#$wgDebugLogGroups['Collection'] = "/var/log/apache2/debug-collection.log";
+#$wgDebugLogGroups['Echo'] = '/var/log/pache2/debug-echo.log';
 
 # Protect against web entry
 if ( !defined( 'MEDIAWIKI' ) ) {
@@ -172,7 +180,7 @@ $wgExternalLinkTarget = '_blank';
 
 # Mobile experience skin (load by MoibleFrontEnd)
 wfLoadSkin( 'Timeless' );
-$wgMFDefaultSkinClass = "SkinTimeless";
+#$wgMFDefaultSkinClass = "SkinTimeless";
 #$wgDefaultSkin = 'minerva';
 
 #$wgMFDefaultSkinClass = "SkinClicklaw";
@@ -218,7 +226,7 @@ wfLoadExtensions(array(
     //'ArticleFeedbackv5',					  
     'EmbedVideo',
     'Quiz',
-    'MobileFrontend',
+    //'MobileFrontend',
 	//'ChangeWording',				  
     'UserMerge',
 	'Lockdown',
@@ -341,12 +349,22 @@ $bwScriptsDirectory = 'scripts';
 if ($devLive == "live") {
     $wgHeadScriptCode = <<<'START_END_MARKER'
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
-{'gtm.start': new Date().getTime(),event:'gtm.js'}
-);var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-KFF3ZQ');</script>
+<script>
+(function waitForMediaWiki() {
+  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined') {
+        return setTimeout(waitForMediaWiki, 50);
+  }
+  
+  mw.loader.using('jquery', function () {
+   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+   {'gtm.start': new Date().getTime(),event:'gtm.js'}
+   );var f=d.getElementsByTagName(s)[0],
+   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+   })(window,document,'script','dataLayer','GTM-KFF3ZQ');
+  });
+})();
+</script>
 <!-- End Google Tag Manager -->
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KFF3ZQ"
@@ -360,13 +378,22 @@ START_END_MARKER;
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
-
-{'gtm.start': new Date().getTime(),event:'gtm.js'}
-);var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-54HLCV');</script>
+<script>
+(function waitForMediaWiki() {
+  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined') {
+        return setTimeout(waitForMediaWiki, 50);
+  }
+  
+  mw.loader.using('jquery', function () {
+   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+   {'gtm.start': new Date().getTime(),event:'gtm.js'}
+   );var f=d.getElementsByTagName(s)[0],
+   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+   })(window,document,'script','dataLayer','GTM-54HLCV');
+  });
+})();
+</script>
 <!-- End Google Tag Manager -->
 START_END_MARKER;
 }
@@ -580,8 +607,14 @@ if ($devLive != "live"){
 
 $wgShowExceptionDetails = true;
 
+// Hook into the page rendering process
+$wgHooks['BeforePageDisplay'][] = function( OutputPage $out, Skin $skin ) {
+    // Inject the viewport meta tag into the head of the page
+    $out->addHeadItem('viewport', '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">');
+};
+
 # UNCOMMENT TO DISABLE ALL EDITING
-#$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
-#$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
-#$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
+$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
+$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
+$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
 

@@ -12,9 +12,6 @@ services:
       context: .
       dockerfile: docker/Mediawiki.Dockerfile
     restart: always
-    # TODO: start here
-    # command:
-      # See also CMD, ENTRYPOINT
     depends_on:
       - wiki-database
     ports:
@@ -121,7 +118,35 @@ services:
     volumes:
       - ./cache:/app/cache
 
+
+  nginx:
+    image: nginx:1.25
+    restart: unless-stopped
+    depends_on:
+      - mediawiki
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot:/var/lib/letsencrypt
+      - ./certs:/etc/letsencrypt/
+    ports:
+      - "80:80"
+      - "443:443"
+
+#  certbot:
+#    image: certbot/certbot
+#    volumes:
+#      - ./certs:/etc/letsencrypt/
+#      - ./certbot:/var/lib/letsencrypt
+#    entrypoint: >
+#      /bin/sh -c 
+#      "trap exit TERM; 
+#      while :; do
+#      certbot renew --webroot -w /var/lib/letsencrypt --quiet;
+#      sleep 12h &
+#      wait $${!};
+#      done"
+
+
 volumes:
   db:
   mediawiki:
-
