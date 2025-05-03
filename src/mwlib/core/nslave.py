@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-
-
 if __name__ == "__main__":
     from gevent import monkey
 
@@ -14,8 +11,14 @@ import time
 
 from bottle import default_app, route, static_file
 
+<<<<<<< HEAD
 from mwlib.core.nserve import name2writer
 from mwlib.utils import myjson, argv
+||||||| parent of 210acfbc (refactor: autoformat and clean up mwlib/core/*.py files)
+from mwlib.utils import myjson, argv
+=======
+from mwlib.utils import argv, myjson
+>>>>>>> 210acfbc (refactor: autoformat and clean up mwlib/core/*.py files)
 from mwlib.utils.unorganized import garble_password
 from qs import proc, nslave
 
@@ -76,9 +79,7 @@ def system(args, timeout=None):
         writemsg()
         lines = ["    " + x for x in stdout[-4096:].split("\n")]
         raise RuntimeError(
-            "command failed with returncode {}: {!r}\nLast Output:\n{}".format(
-                retcode, pub_args, "\n".join(lines)
-            )
+            f"command failed with returncode {retcode}: {pub_args!r}\nLast Output:\n{'\n'.join(lines)}"
         )
 
     writemsg()
@@ -180,7 +181,7 @@ class Commands:
                 f.write(metabook_data.encode("utf-8"))
                 f.close()
 
-            logger.info("running %r", args)
+            logger.info(f"running {args!r}")
             system(args, timeout=8 * 60.0)
 
         return doit(**params)
@@ -199,7 +200,6 @@ class Commands:
                 jobid=f"{collection_id}:makezip",
                 timeout=20 * 60,
             )
-            # outfile = getpath("output.%s" % writer)
             outfile = getpath(f"output.{name2writer[writer].file_extension}")
             args = [
                 "mw-render",
@@ -215,7 +215,7 @@ class Commands:
 
             args.extend(_get_args(**params))
 
-            logger.info("running %r", args)
+            logger.info(f"running {args!r}")
             system(args, timeout=15 * 60.0)
             os.chmod(outfile, 0o644)
             size = os.path.getsize(outfile)
