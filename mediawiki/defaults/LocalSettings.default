@@ -350,8 +350,9 @@ if ($devLive == "live") {
     $wgHeadScriptCode = <<<'START_END_MARKER'
 <!-- Google Tag Manager -->
 <script>
+document.addEventListener('DOMContentLoaded', function () {
 (function waitForMediaWiki() {
-  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined') {
+  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined' || typeof mw.loader.using === 'undefined') {
         return setTimeout(waitForMediaWiki, 50);
   }
   
@@ -364,6 +365,7 @@ if ($devLive == "live") {
    })(window,document,'script','dataLayer','GTM-KFF3ZQ');
   });
 })();
+});
 </script>
 <!-- End Google Tag Manager -->
 <!-- Google Tag Manager (noscript) -->
@@ -379,8 +381,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <!-- Google Tag Manager -->
 <script>
+document.addEventListener('DOMContentLoaded', function () {
 (function waitForMediaWiki() {
-  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined') {
+  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined' || typeof mw.loader.using === 'undefined') {
         return setTimeout(waitForMediaWiki, 50);
   }
   
@@ -393,6 +396,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    })(window,document,'script','dataLayer','GTM-54HLCV');
   });
 })();
+});
 </script>
 <!-- End Google Tag Manager -->
 START_END_MARKER;
