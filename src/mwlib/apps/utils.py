@@ -1,4 +1,5 @@
 from gevent import monkey
+#monkey.patch_all(thread=False)
 
 from mwlib.apps.make_nuwiki import make_nuwiki
 from mwlib.configuration import conf
@@ -32,8 +33,6 @@ def create_zip_from_wiki_env(parser, pod_client, options, make_zip):
 
 
 def build_parser():
-    monkey.patch_all(thread=False)
-
     parser = OptionParser()
     parser.add_option("-o", "--output", help="write output to OUTPUT")
     parser.add_option("-p", "--posturl", help="http post to POSTURL (directly)")

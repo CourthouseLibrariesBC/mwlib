@@ -12,6 +12,8 @@ from hashlib import sha256
 from io import StringIO
 
 import gevent.monkey
+gevent.monkey.patch_all()
+
 import pkg_resources
 import six.moves.urllib.error
 import six.moves.urllib.parse
@@ -27,10 +29,6 @@ from mwlib.utilities import log, lrucache
 from mwlib.utilities import myjson as json
 
 log = log.root_logger.getChild("mwlib.serve")
-
-if __name__ == "__main__":
-    gevent.monkey.patch_all()
-
 
 class Bunch:
     def __init__(self, **kw):
