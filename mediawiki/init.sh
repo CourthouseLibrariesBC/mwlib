@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# TODO:
+# - Migrate whatever possible to the Mediawiki.Dockerfile
+
 # If the init script has already run, start apache
-if [[ -e .installed ]]; then
+if [[ -e /.mediawiki-initialized ]]; then
   apache2-foreground
   exit
 fi
@@ -52,12 +55,11 @@ cd -
 
 echo "Initializing database..."
 
-
 php maintenance/install.php --dbname=${DB_NAME} --dbserver=${DB_SERVER} --dbport=3306 --dbuser=${DB_USER} --dbpass="${DB_PASSWORD}" --pass="${WIKI_ADMIN_PASSWORD}" "${WIKI_NAME}" "Admin"
 
 echo "Generating and customizing LocalSettings.php..."
 
-cp defaults/LocalSettings.default LocalSettings.php
+#cp defaults/LocalSettings.default LocalSettings.php
 
 sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
@@ -115,10 +117,10 @@ error_log = '/var/log/php_errors.log'" > /usr/local/etc/php/php.ini
 #echo "ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/apache2.conf
 #echo "CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/apache2.conf
 
+echo "Initialization complete..."
+touch /.mediawiki-initialized
+
 echo "Starting MediaWiki..."
-
-touch .installed
-
 #php-fpm
 apache2-foreground
 
