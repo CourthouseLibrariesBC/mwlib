@@ -286,15 +286,20 @@ class Application:
         return dict(error=error, **kw)
 
     def check_collection_id(self, collection_id):
-        """Return True iff collection with given ID exists"""
-
-        if not collection_id or not collection_id_rex.match(collection_id):
-            return False
-        return True
+        """Return True if a collection with the given ID exists"""
+        return collection_id and collection_id_rex.match(collection_id)
 
     def new_collection(self, post_data):
         collection_id = make_collection_id(post_data)
         return collection_id
+
+    def is_good_baseurl(self, url):
+        netloc = urllib.parse.urlparse(url)[1].split(":")[0].lower()
+        return not (
+            netloc == "localhost"
+            or netloc.startswith("127.0.")
+            or netloc.startswith("192.168.")
+        )
 
     def _get_params(self, post_data, collection_id):
         get = post_data.get
