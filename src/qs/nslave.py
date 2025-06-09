@@ -200,7 +200,7 @@ def main(  # noqa: C901
                 server_proxy.qfinish(jobid=job["jobid"], error=short_err_msg())
                 logger.exception("error while handling job")
             except Exception:
-                logger.exception("error 2 while handling job")
+                pass
             return
 
         with contextlib.suppress(Exception):

@@ -122,6 +122,11 @@ $wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=binary";
 $wgSessionCacheType = CACHE_DB;
 
 ## Shared memory settings
+
+
+
+
+# Disable caching ##
 $wgMainCacheType    = CACHE_NONE;
 $wgMessageCacheType = CACHE_NONE;
 $wgParserCacheType = CACHE_NONE;						 
@@ -142,6 +147,7 @@ $wgCookieSecure = false;     // set to true if HTTPS is enforced
 $wgCookieHttpOnly = true;
 $wgCookiePrefix = "mw_";     // avoid conflicts
 
+# Disable caching ##
 
 
 $wgMemCachedServers = array();

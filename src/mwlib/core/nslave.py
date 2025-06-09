@@ -11,14 +11,8 @@ import time
 
 from bottle import default_app, route, static_file
 
-<<<<<<< HEAD
 from mwlib.core.nserve import name2writer
 from mwlib.utils import myjson, argv
-||||||| parent of 210acfbc (refactor: autoformat and clean up mwlib/core/*.py files)
-from mwlib.utils import myjson, argv
-=======
-from mwlib.utils import argv, myjson
->>>>>>> 210acfbc (refactor: autoformat and clean up mwlib/core/*.py files)
 from mwlib.utils.unorganized import garble_password
 from qs import proc, nslave
 
