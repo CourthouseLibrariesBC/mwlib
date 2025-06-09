@@ -15,10 +15,12 @@ RUN rm -f /.mediawiki-initialized
 
 # Keys are not available in the repo.
 # Request them from your admin.
-COPY mediawiki/keys/* /app/.ssh/
+COPY ./mediawiki/keys/* /app/.ssh/
 
-COPY mediawiki/defaults/LocalSettings.default $LOCAL_SETTINGS
+COPY ./mediawiki/defaults/LocalSettings.default $LOCAL_SETTINGS
 
+COPY ./Collection /app/Collection
+ 
 # Set entrypoint to execute the install script before starting Apache
 ENTRYPOINT ["docker-php-entrypoint"]
 

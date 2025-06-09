@@ -2698,6 +2698,12 @@ def writer(
     lang=None,
     profile=None,
 ):
+    # Ensure output ends with .pdf
+    if not output.lower().endswith('.pdf'):
+        output_pdf = output + '.pdf'
+    else:
+        output_pdf = output
+
     rl_writer = RlWriter(
         env, strict=strict, debug=debug, mathcache=mathcache, lang=lang
     )
@@ -2713,8 +2719,14 @@ def writer(
         )
     else:
         rl_writer.writeBook(
-            output=output, coverimage=coverimage, status_callback=status_callback
+            output=output_pdf, coverimage=coverimage, status_callback=status_callback
         )
+        # Ensure the expected output.pdf exists
+        if output_pdf != output and output_pdf.endswith('.pdf'):
+            try:
+                shutil.copy(output_pdf, output)
+            except Exception as e:
+                log.warning(f"Could not copy {output_pdf} to {output}: {e}")
 
 
 writer.description = "PDF documents (using ReportLab)"

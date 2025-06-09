@@ -148,6 +148,7 @@ class FsOutput:
         for key, value in kw.items():
             path = os.path.join(self.path, key + ".json")
             with open(path, "w", encoding="utf8") as out_file:
+                # json.dump(json.rewrite_to_docker_host(value), out_file, indent=4, sort_keys=True)
                 json.dump(value, out_file, indent=4, sort_keys=True)
 
     def write_siteinfo(self, siteinfo):

@@ -97,7 +97,7 @@ class StartFetcher:
         val = api.fetch_pages([collection_page])
         rawtext = list(val["pages"].values())[0]["revisions"][0]["*"]
         meta_book = self.metabook = parse_collection_page(rawtext)
-        wikitrust(api.baseurl, meta_book)
+        wikitrust(myjson.rewrite_to_docker_host(api.baseurl), meta_book)
 
         # XXX: localised template parameter names???
         meta = extract_metadata(
@@ -166,7 +166,7 @@ def write_multi_wiki_metabook(fsdir, metabook):
     if not os.path.exists(fsdir):
         os.makedirs(fsdir)
     with open(os.path.join(fsdir, "metabook.json"), "wb") as metabook_file:
-        metabook_file.write(metabook.dumps())
+        metabook_file.write(myjson.rewrite_to_docker_host(metabook.dumps()))
     with open(os.path.join(fsdir, "nfo.json"), "wb") as nfo_file:
         myjson.dump({"format": "multi-nuwiki"}, nfo_file)
 
@@ -232,13 +232,13 @@ def make_nuwiki(
 
         my_mb = get_metabook(is_multiwiki, articles, metabook)
 
-        wikitrust(wikiconf.baseurl, my_mb)
+        wikitrust(myjson.rewrite_to_docker_host(wikiconf.baseurl), my_mb)
 
         fetchers.append(
             StartFetcher(
                 fsdir=my_fsdir,
                 progress=progress,
-                base_url=wikiconf.baseurl,
+                base_url=myjson.rewrite_to_docker_host(wikiconf.baseurl),
                 metabook=my_mb,
                 wiki_options=wiki_options,
                 pod_client=pod_client,

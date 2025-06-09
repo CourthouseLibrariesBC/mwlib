@@ -200,13 +200,13 @@ def main(
                 server_proxy.qfinish(jobid=job["jobid"], error=short_err_msg())
                 logger.exception("error while handling job")
             except Exception:
-                pass
+                logger.exception("error 2 while handling job")
             return
 
         try:
             server_proxy.qfinish(jobid=job["jobid"], result=result)
         except Exception:
-            pass
+            logger.exception("error 3 while handling job")
 
     def start_worker():
         logger.info(f"Server proxy form start_worker {host}:{port}")

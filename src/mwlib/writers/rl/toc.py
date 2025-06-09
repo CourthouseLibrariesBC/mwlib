@@ -125,6 +125,9 @@ class TocRenderer:
                                  has_title_page=has_title_page)
         if retcode == 0:
             shutil.move(finalpath, pdfpath)
+        else:
+            if not os.path.exists(pdfpath) and os.path.exists(safe_pdfpath):
+                shutil.copy(safe_pdfpath, pdfpath)
         if os.path.exists(tocpath):
             os.unlink(tocpath)
         return retcode

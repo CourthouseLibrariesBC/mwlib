@@ -12,27 +12,21 @@ $wgRunJobsAsync = false;
 #Added so importStyleSheet doesn't throw an error
 $wgIncludeLegacyJavaScript = true;
 
-$_GET['debug'] = false;
-$wgDebugToolbar = false;
-$wgShowSQLErrors = false;
-$wgDebugDumpSql  = false;
-$wgEnableJavaScriptTest = false;
+# Debugging on by default
+$_GET['debug'] = true;
+$wgDebugToolbar = true;
+$wgShowSQLErrors = true;
+$wgDebugDumpSql  = true;
+$wgEnableJavaScriptTest = true;
+$wgDebugLogFile = "/var/log/php_debug";
 
-# Uncomment for debugging
-#$_GET['debug'] = true;
-#$wgDebugToolbar = true;
-#$wgShowSQLErrors = true;
-#$wgDebugDumpSql  = true;
-#$wgEnableJavaScriptTest = true;
-
-/**
- * The debug log file must never be publicly accessible because it
- * contains private data. But ensure that the directory is writeable by the
- * PHP script running within your Web server.
- * The filename is with the database name of the wiki.
- */
-
-$wgDebugLogFile = false;
+# Uncomment to silence debugging
+#$_GET['debug'] = false;
+#$wgDebugToolbar = false;
+#$wgShowSQLErrors = false;
+#$wgDebugDumpSql  = false;
+#$wgEnableJavaScriptTest = false;
+#$wgDebugLogFile = false;
 
 # Uncomment for logging
 #$wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
@@ -62,6 +56,13 @@ $wgScriptExtension  = ".php";
 #$wgUsePathInfo = false;
 
 $wgServer = "http://mediawiki/";
+
+#if (php_sapi_name() === 'cli-server' || $_SERVER['REMOTE_ADDR'] === '172.18.0.1') {
+#    $wgServer = "http://mediawiki";
+#} else {
+#    $wgServer = "http://your.public.domain";
+#}
+
 $wgServerName = "mediawiki";
 
 ## The relative URL path to the skins directory
@@ -116,10 +117,12 @@ $wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=binary";
 # Deprecated in 1.31, removed in 1.33
 //$wgDBmysql5 = false;
 
+$wgSessionCacheType = CACHE_DB;
+
 ## Shared memory settings
-#$wgMainCacheType    = CACHE_ACCEL;
-#$wgMessageCacheType = CACHE_ACCEL;
-#$wgParserCacheType = CACHE_ACCEL;						 
+$wgMainCacheType    = CACHE_ACCEL;
+$wgMessageCacheType = CACHE_ACCEL;
+$wgParserCacheType = CACHE_ACCEL;						 
 
 $wgMemCachedServers = array();
 $wgUseGzip = true;
@@ -161,7 +164,8 @@ $wgShellLocale = "en_US.utf8";
 # Site language code, should be one of the list in ./languages/Names.php
 $wgLanguageCode = "en";
 
-$wgSecretKey = "75470a28a164494221bdc4900c1f7293e0ed7346106d1cb94829da36c5dfd9ad";
+#$wgSecretKey = "75470a28a164494221bdc4900c1f7293e0ed7346106d1cb94829da36c5dfd9ad";
+$wgSecretKey = "adasdfhaksjdfhaskjdfhas";
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
@@ -332,73 +336,19 @@ $bwScriptsDirectory = 'scripts';
 
 //require_once( "$IP/extensions/GoogleTagManager/GoogleTagManager.php" );
 
-
-//Change GTM for Head Script code extension in 1,35 upgrade */
-// Set GTM appropriately for dev and live
-//if ($stageLive == "live") {
-    //$wgGoogleTagManagerContainerID = "GTM-KFF3ZQ";
-//} 
-
-# GTag extension configuration. "real" tag just for live 
-/*if ($stageLive == "live") {
-    $wgGTagAnalyticsId = "GTM-KFF3ZQ";
-} else {
-	$wgGTagAnalyticsId = 'GTM-54HLCV';
-}*/
+$gtag = getenv('GTAG');
 
 if ($devLive == "live") {
     $wgHeadScriptCode = <<<'START_END_MARKER'
-<!-- Google Tag Manager -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={$gtag}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-(function waitForMediaWiki() {
-  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined' || typeof mw.loader.using === 'undefined') {
-        return setTimeout(waitForMediaWiki, 50);
-  }
-  
-  mw.loader.using('jquery', function () {
-   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
-   {'gtm.start': new Date().getTime(),event:'gtm.js'}
-   );var f=d.getElementsByTagName(s)[0],
-   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-   })(window,document,'script','dataLayer','GTM-KFF3ZQ');
-  });
-})();
-});
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{$gtag}');
 </script>
-<!-- End Google Tag Manager -->
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KFF3ZQ"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-START_END_MARKER;
-} else {
-	$wgHeadScriptCode = <<<'START_END_MARKER'
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-54HLCV"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<!-- Google Tag Manager -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-(function waitForMediaWiki() {
-  if (typeof mw === 'undefined' || typeof mw.loader === 'undefined' || typeof mw.loader.using === 'undefined') {
-        return setTimeout(waitForMediaWiki, 50);
-  }
-  
-  mw.loader.using('jquery', function () {
-   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
-   {'gtm.start': new Date().getTime(),event:'gtm.js'}
-   );var f=d.getElementsByTagName(s)[0],
-   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-   })(window,document,'script','dataLayer','GTM-54HLCV');
-  });
-})();
-});
-</script>
-<!-- End Google Tag Manager -->
 START_END_MARKER;
 }
 
@@ -621,4 +571,31 @@ $wgHooks['BeforePageDisplay'][] = function( OutputPage $out, Skin $skin ) {
 $wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
 $wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
 $wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
+
+
+function wfExpandUrlDocker( $url, $proto = PROTO_CURRENT ) {
+//    return wfExpandUrl($url, $proto);
+
+    $internalHost = getenv('WIKI_INTERNAL_HOSTNAME');
+    $expanded = wfExpandUrl( $url, $proto );
+
+    if (!$internalHost) {
+        return $expanded;
+    }
+
+    $parts = parse_url($expanded);
+    if (!$parts) {
+        return $expanded;
+    }
+    $scheme = isset($parts['scheme']) ? $parts['scheme'] : 'http';
+    $host = $internalHost;
+    $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+    $user = isset($parts['user']) ? $parts['user'] : '';
+    $pass = isset($parts['pass']) ? ':' . $parts['pass']  : '';
+    $pass = ($user || $pass) ? "$pass@" : '';
+    $path = isset($parts['path']) ? $parts['path'] : '';
+    $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+    $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+    return "$scheme://$user$pass$host$port$path$query$fragment";
+}
 

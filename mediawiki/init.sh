@@ -26,8 +26,7 @@ echo "Installing extentions..."
 mkdir -p ${EXTENSIONS_DIR}/
 cd ${EXTENSIONS_DIR}/
 
-wget ${EXTENSIONS_URL}/Collection-REL1_41-fe5eaec.tar.gz \
-${EXTENSIONS_URL}/HeadScript-REL1_41-ac3bcc2.tar.gz \
+wget ${EXTENSIONS_URL}/HeadScript-REL1_41-ac3bcc2.tar.gz \
 ${EXTENSIONS_URL}/Renameuser-REL1_41-a93981c.tar.gz \
 ${EXTENSIONS_URL}/Lingo-REL1_41-7472327.tar.gz \
 https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v3.4.2.tar.gz \
@@ -46,7 +45,9 @@ ${EXTENSIONS_URL}/ParserFunctions-REL1_41-69ba429.tar.gz
 mv mediawiki-extensions-EmbedVideo-3.4.2 EmbedVideo
 
 find . -name "*.tar.gz" -type f -exec tar -xvf {} \;
-rm *.tar.gz
+rm *.tar.gz*
+
+cp -R /app/Collection .
 
 cd -
 
@@ -62,6 +63,7 @@ echo "Generating and customizing LocalSettings.php..."
 #cp defaults/LocalSettings.default LocalSettings.php
 
 sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
+#sed -i -E "s/wgServer = \"http:\/\/your.public.domain\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
 
 sed -i -E "s/wgDBserver = \"[^\"]*\"/wgDBserver = \"${DB_SERVER}\"/g" ${LOCAL_SETTINGS}
@@ -116,6 +118,16 @@ error_log = '/var/log/php_errors.log'" > /usr/local/etc/php/php.ini
 
 #echo "ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/apache2.conf
 #echo "CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/apache2.conf
+
+cat <<EOF >> /etc/apache2/apache2.conf
+Alias /cache/ /app/cache/
+<Directory /app/cache/>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+</Directory>
+AddType application/pdf .pdf
+EOF
 
 echo "Initialization complete..."
 touch /.mediawiki-initialized

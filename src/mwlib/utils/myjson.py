@@ -1,6 +1,9 @@
 # Copyright (c) 2007-2009 PediaPress GmbH
 # See README.rst for additional licensing information.
 
+import os
+import re
+
 """custom json encoder/decoder, which can handle metabook objects"""
 
 from mwlib.core import metabook
@@ -62,3 +65,23 @@ def dumps(obj, **kw):
 
 def load(file_path):
     return json.load(file_path, object_hook=object_hook)
+
+def rewrite_to_docker_host(original_str):
+    # return original_str
+    """
+    Replace all hostnames in URLs in the metabook JSON string with the INTERNAL_HOSTNAME environment variable.
+    """
+    internal_host = os.environ.get("WIKI_INTERNAL_HOSTNAME")
+    if not internal_host:
+        return original_str
+
+    # Replace http(s)://<anything>[:port]/ with http://INTERNAL_HOSTNAME/
+    # Handles both http and https, with or without port, and double slashes
+    original_str = re.sub(
+        r'https?://[^/]+(?=/+)',  # match http(s)://hostname[:port] before one or more slashes
+        f'http://{internal_host}',
+        original_str
+    )
+    # Collapse double slashes after hostname (but not the protocol)
+    original_str = re.sub(r'(http://[^/]+)//+', r'\1/', original_str)
+    return original_str

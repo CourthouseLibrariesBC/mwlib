@@ -58,8 +58,39 @@ def finish_render(writer, options, zip_filename, status):
         kwargs["content_type"] = writer.content_type
     if hasattr(writer, "file_extension"):
         kwargs["file_extension"] = writer.file_extension
-    #kwargs["url"] = "http://job_dispatcher:8899/cache/cf/cf7f066a7f269972/output.rl"
+
+    # TODO: Remove hardcoding
+    # if hasattr(options, "url"):
+    #     kwargs["url"] = "/cache/cf/cf7f066a7f269972/output.pdf" #options["url"]
+    #     kwargs["download_url"] = kwargs["url"]
+
+    # Use values from options if available, otherwise fallback to defaults
+    url = options.get("url")
+    if not url and "output" in options:
+        # Try to infer a web-accessible URL from the output path
+        output_path = options["output"]
+        # Example: if output_path is /app/cache/cf/cf7f066a7f269972/output.pdf
+        # and /app/cache is mapped to /cache in the web server,
+        # you can replace the prefix accordingly:
+        if output_path.startswith("/app/cache/"):
+            url = output_path.replace("/app", "")
+        else:
+            url = output_path  # fallback, may need adjustment for your setup
+    kwargs["url"] = url
+    kwargs["download_url"] = url
+
+    # # if hasattr(options, "suggested_filename"):
+    #     kwargs["suggested_filename"] = "Legal Information for Indigenous People: National Edition" #options["suggested_filename"]
+
+    suggested_filename = options.get("suggested_filename")
+    if not suggested_filename and "output" in options:
+        suggested_filename = os.path.basename(options["output"])
+    kwargs["suggested_filename"] = suggested_filename
+
+    logger.warning(f"finish_render options={options}")
+
     status(status="finished", progress=100, **kwargs)
+    
     keep_zip = options.get("keep_zip")
     if keep_zip is None and zip_filename is not None:
         unorganized.safe_unlink(zip_filename)

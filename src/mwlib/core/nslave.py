@@ -14,6 +14,7 @@ import time
 
 from bottle import default_app, route, static_file
 
+from mwlib.core.nserve import name2writer
 from mwlib.utils import myjson, argv
 from mwlib.utils.unorganized import garble_password
 from qs import proc, nslave
@@ -198,7 +199,8 @@ class Commands:
                 jobid=f"{collection_id}:makezip",
                 timeout=20 * 60,
             )
-            outfile = getpath("output.%s" % writer)
+            # outfile = getpath("output.%s" % writer)
+            outfile = getpath(f"output.{name2writer[writer].file_extension}")
             args = [
                 "mw-render",
                 "-w",
@@ -217,7 +219,7 @@ class Commands:
             system(args, timeout=15 * 60.0)
             os.chmod(outfile, 0o644)
             size = os.path.getsize(outfile)
-            url = CACHE_URL + f"/{collection_id[:2]}/{collection_id}/output.{writer}"
+            url = CACHE_URL + f"/{collection_id[:2]}/{collection_id}/output.{name2writer[writer].file_extension}"
             return {
                 "url": url,
                 "size": size,

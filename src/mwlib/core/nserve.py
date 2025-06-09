@@ -307,9 +307,9 @@ class Application:
         get = post_data.get
         params = Bunch()
         params.__dict__ = {
-            "metabook_data": get("metabook"),
+            "metabook_data": json.rewrite_to_docker_host(get("metabook")),
             "writer": get("writer", self.default_writer),
-            "base_url": get_internal_base_url(get("base_url")),
+            "base_url": json.rewrite_to_docker_host(get("base_url")),
             "writer_options": get("writer_options", ""),
             "login_credentials": get("login_credentials", ""),
             "force_render": bool(get("force_render")),

@@ -57,6 +57,7 @@ def setup_console_logging(
     # --- Configure mwlib console handler ---
     if isinstance(level, str):
         level = logging.getLevelName(level.upper())
+        level = logging.DEBUG
         if not isinstance(level, int):
             level = logging.WARNING
             package_logger.warning(

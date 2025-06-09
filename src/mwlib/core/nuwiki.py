@@ -118,6 +118,7 @@ class NuWiki:
 
         self.redirects = self._loadjson("redirects.json", {})
         self.siteinfo = self._loadjson("siteinfo.json", {})
+        log.warning("****** self.siteinfo: %r", self.siteinfo)
         self.nshandler = nshandling.NsHandler(self.siteinfo)
         self.en_nshandler = nshandling.get_nshandler_for_lang("en")
         self.nfo = self._loadjson("nfo.json", {})
@@ -139,7 +140,7 @@ class NuWiki:
     def _loadjson(self, path, default=None):
         path = self._pathjoin(path)
         if self._exists(path):
-            return json.load(open(path, "rb"))
+            return json.load(json.rewrite_to_docker_host(open(path, "rb")))
         return default
 
     def _read_revisions(self):

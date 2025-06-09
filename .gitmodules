@@ -1,0 +1,4 @@
+[submodule "Collection"]
+	path = Collection
+	url = git@github.com:CourthouseLibrariesBC/Collection.git
+	branch = REL1_41
