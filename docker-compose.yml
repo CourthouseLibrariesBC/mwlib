@@ -14,8 +14,8 @@ services:
     restart: always
     depends_on:
       - wiki-database
-    ports:
-      - 8080:80
+    expose:
+      - "80"
     volumes:
       - ./mediawiki/images:/var/www/html/images
       - ./mediawiki/extensions:/var/www/html/extensions
@@ -48,8 +48,8 @@ services:
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-    ports:
-      - 3306:3306
+    expose:
+      - "3306"
     volumes:
       - db:/var/lib/mysql
 
@@ -57,18 +57,16 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.base
-    environment:
-      WIKI_INTERNAL_HOSTNAME: mediawiki
+      #    environment:
+      #      WIKI_INTERNAL_HOSTNAME: mediawiki
     image: base
 
   q_serve:
     build:
       context: .
       dockerfile: docker/QServe.Dockerfile
-    ports:
-      - "8090:8090"
-    environment:
-      WIKI_INTERNAL_HOSTNAME: mediawiki
+      #    environment:
+      #      WIKI_INTERNAL_HOSTNAME: mediawiki
     depends_on:
       - base
     expose:
@@ -85,8 +83,8 @@ services:
       --port 8090
       --numprocs 2 
       -c makezip
-    environment:
-      WIKI_INTERNAL_HOSTNAME: mediawiki
+      #    environment:
+      #      WIKI_INTERNAL_HOSTNAME: mediawiki
     depends_on:
       - base
       - q_serve
@@ -97,10 +95,8 @@ services:
     build:
       context: .
       dockerfile: docker/JobDispatcher.Dockerfile
-    environment:
-      WIKI_INTERNAL_HOSTNAME: mediawiki
-    ports:
-      - "8899:8899"
+      #    environment:
+      #      WIKI_INTERNAL_HOSTNAME: mediawiki
     depends_on:
       - base
       - q_serve
@@ -122,8 +118,8 @@ services:
       --numprocs 2
       --url http://render_worker:9123/cache
       -c render
-    environment:
-      WIKI_INTERNAL_HOSTNAME: mediawiki
+      #    environment:
+      #      WIKI_INTERNAL_HOSTNAME: mediawiki
     volumes:
       - ./cache:/app/cache
 

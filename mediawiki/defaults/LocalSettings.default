@@ -49,13 +49,15 @@ $wgSitename      = "Clicklaw Wikibooks";
 ## (like /w/index.php/Page_title to /wiki/Page_title) please see:
 ## http://www.mediawiki.org/wiki/Manual:Short_URL
 $wgScriptPath       = "";
+#$wgScriptPath       = "/";
+#$wgArticlePath = "/index.php/$1";
 
 # $wgScriptExtension is deprecated and removed as of 1.31
 $wgScriptExtension  = ".php";
 
 #$wgUsePathInfo = false;
 
-$wgServer = "http://mediawiki/";
+$wgServer = "http://mediawiki";
 
 #if (php_sapi_name() === 'cli-server' || $_SERVER['REMOTE_ADDR'] === '172.18.0.1') {
 #    $wgServer = "http://mediawiki";
@@ -120,9 +122,27 @@ $wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=binary";
 $wgSessionCacheType = CACHE_DB;
 
 ## Shared memory settings
-$wgMainCacheType    = CACHE_ACCEL;
-$wgMessageCacheType = CACHE_ACCEL;
-$wgParserCacheType = CACHE_ACCEL;						 
+$wgMainCacheType    = CACHE_NONE;
+$wgMessageCacheType = CACHE_NONE;
+$wgParserCacheType = CACHE_NONE;						 
+
+$wgUseCdn = false;
+$wgUseCdnCache = false;
+$wgCachePages = false;
+$wgEnableSidebarCache = false;
+$wgDisableOutputCompression = true;
+
+$wgHooks['BeforePageDisplay'][] = function ( $out, $skin ) {
+    $out->addMeta( 'cache-control', 'no-store, no-cache, must-revalidate, max-age=0' );
+    return true;
+};
+
+$wgCookieDomain = "";        // or ".example.com" if you use subdomains
+$wgCookieSecure = false;     // set to true if HTTPS is enforced
+$wgCookieHttpOnly = true;
+$wgCookiePrefix = "mw_";     // avoid conflicts
+
+
 
 $wgMemCachedServers = array();
 $wgUseGzip = true;

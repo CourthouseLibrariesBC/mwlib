@@ -62,7 +62,7 @@ echo "Generating and customizing LocalSettings.php..."
 
 #cp defaults/LocalSettings.default LocalSettings.php
 
-sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
 #sed -i -E "s/wgServer = \"http:\/\/your.public.domain\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
 

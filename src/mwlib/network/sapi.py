@@ -403,7 +403,7 @@ def guess_api_urls(url):
         url += "/"
 
     for _path in (path + "/", "/w/", "/wiki/", "/"):
-        base_url = f"{prefix}{_path}sapi.php"
+        base_url = f"{prefix}{_path}api.php"
         if base_url not in retval:
             retval.append(base_url)
     if url.endswith("/index.php"):

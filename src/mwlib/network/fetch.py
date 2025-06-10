@@ -905,7 +905,7 @@ class Fetcher:
                 # traceback.print_exc()
                 continue
 
-        raise RuntimeError(f"cannot guess api url for {path}")
+        raise RuntimeError(f"cannot guess api url for {path} with urls {urls}. ")
 
     def _fetch_pages(self, *args, **kwargs):
         data = self.api.fetch_pages(**kwargs)
