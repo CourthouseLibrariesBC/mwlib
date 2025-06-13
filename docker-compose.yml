@@ -88,8 +88,8 @@ services:
       # --port 8090
       # --numprocs 2 
       # -c makezip
-    ports:
-      - "5678:5678"
+#    ports:
+#      - "5678:5678"
     environment:
       DEBUGPY: 1
       GEVENT_SUPPORT: True
@@ -132,8 +132,8 @@ services:
       # --numprocs 2
       # --url http://render_worker:9123/cache
       # -c render
-    ports:
-      - "5679:5679"
+#    ports:
+#      - "5679:5679"
     environment:
       DEBUGPY: 1
       GEVENT_SUPPORT: True
