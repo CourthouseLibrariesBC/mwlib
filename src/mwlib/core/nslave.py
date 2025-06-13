@@ -175,7 +175,23 @@ class Commands:
                     f.write(metabook_data.encode("utf-8"))
 
             logger.info(f"running {args!r}")
-            system(args, timeout=8 * 60.0)
+            try:
+                system(args, timeout=8 * 60.0)
+            except Exception as e:
+                logger.exception(f"Exception running mw-zip: {e}")
+                raise
+            logger.info(f"Checking for output zip at {zip_path}")
+            if os.path.exists(zip_path):
+                logger.info(f"Output zip exists, size: {os.path.getsize(zip_path)}")
+            else:
+                logger.error(f"Output zip missing at {zip_path}")
+            return {
+                "metabook_data": metabook_path,
+                "collection_id": collection_id,
+                "collection_dir": collection_dir,
+                "zip_path": zip_path,
+                "collection_url": zip_path,
+            }
 
         return doit(**params)
 

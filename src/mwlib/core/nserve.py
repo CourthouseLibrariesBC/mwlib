@@ -374,6 +374,7 @@ class Application:
         try:
             if res["result"]:
                 more["url"] = res["result"]["url"]
+                more["download_url"] = urllib.parse.urlparse(res["result"]["url"]).path
                 more["content_length"] = res["result"]["size"]
                 more["suggested_filename"] = res["result"].get("suggested_filename", "")
         except KeyError:

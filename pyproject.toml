@@ -28,6 +28,9 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: XML",
 ]
 license = { text = "BSD-3-Clause" }
+dependencies = [
+    "debugpy",
+]
 
 [project.urls]
 homepage = "https://code.pediapress.com/"

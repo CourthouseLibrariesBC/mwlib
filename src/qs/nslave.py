@@ -205,8 +205,6 @@ def main(  # noqa: C901
 
         with contextlib.suppress(Exception):
             server_proxy.qfinish(jobid=job["jobid"], result=result)
-        except Exception:
-            pass
 
     def start_worker():
         logger.info(f"Server proxy form start_worker {host}:{port}")

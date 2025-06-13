@@ -26,6 +26,7 @@ SMTP_PORT=587
 SMTP_AUTH=true
 SMTP_USER=admin@whatever.com
 SMTP_PASS=password
+GTAG=G-123456
 ```
 
 The `PRODUCTION_HOSTNAME` and `DATA_IMPORT_USER` variables are used for copying live production data down to your docker during build. You will need to place SSH keys in `/mediawiki/keys/` and name them `id_docker_data` and `id_docker_data.pub`.
