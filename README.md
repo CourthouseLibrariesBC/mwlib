@@ -31,7 +31,7 @@ GTAG=G-123456
 
 The `PRODUCTION_HOSTNAME` and `DATA_IMPORT_USER` variables are used for copying live production data down to your docker during build. You will need to place SSH keys in `/mediawiki/keys/` and name them `id_docker_data` and `id_docker_data.pub`.
 
-If you specify a `COLLECTION_EXTENSION_PATH`, it will use local files for installing the Collection extension, otherwise it will install an exact commit from the required repo.
+If you specify a `COLLECTION_EXTENSION_PATH`, it will use local files for installing the Collection extension, otherwise it will install an exact commit from the required repo. Run `git submodule update --init --recursive` at the root of the mwlb repo to fetch the Collection repo.
 
 And then run:
 
