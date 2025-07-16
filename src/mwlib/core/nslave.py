@@ -8,6 +8,7 @@ import os
 import socket
 import sys
 import time
+from mwlib.utils.unorganized import fs_escape
 
 from bottle import default_app, route, static_file
 
@@ -209,7 +210,13 @@ class Commands:
                 jobid=f"{collection_id}:makezip",
                 timeout=20 * 60,
             )
-            outfile = getpath(f"output.{name2writer[writer].file_extension}")
+            
+            mb = myjson.loads(metabook_data)
+            book_title = mb["title"] or "Clicklaw Custom Book"
+            safe_title = fs_escape(book_title)
+            book_file = f"{safe_title}.{name2writer[writer].file_extension}"
+            outfile = getpath(book_file)
+
             args = [
                 "mw-render",
                 "-w",
@@ -228,7 +235,7 @@ class Commands:
             system(args, timeout=15 * 60.0)
             os.chmod(outfile, 0o644)
             size = os.path.getsize(outfile)
-            url = CACHE_URL + f"/{collection_id[:2]}/{collection_id}/output.{name2writer[writer].file_extension}"
+            url = CACHE_URL + f"/{collection_id[:2]}/{collection_id}/{book_file}"
             return {
                 "url": url,
                 "size": size,
@@ -236,7 +243,6 @@ class Commands:
             }
 
         return doit(**params)
-
 
 def start_serving_files(cachedir, address, port):
     from gevent.pywsgi import WSGIServer
