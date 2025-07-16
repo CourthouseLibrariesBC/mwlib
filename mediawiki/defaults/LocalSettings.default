@@ -362,20 +362,33 @@ $bwScriptsDirectory = 'scripts';
 
 //require_once( "$IP/extensions/GoogleTagManager/GoogleTagManager.php" );
 
-$gtag = getenv('GTAG');
+$gtmID = getenv('GTM_ID');
 
 if ($devLive == "live") {
     $wgHeadScriptCode = <<<'START_END_MARKER'
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={$gtag}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', '{$gtag}');
-</script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','{$gtmID}');</script>
+<!-- End Google Tag Manager -->
 START_END_MARKER;
+
+    $wgHooks['BeforePageDisplay'][] = function ( OutputPage &$out, Skin &$skin ) {
+        $gtmBodyCode = <<<HTML
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={$gtmID}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+HTML;
+
+        // Append the GTM code to the top of the bodyContent
+        $out->addHtml( $gtmBodyCode );
+
+        return true;
+    };
+
 }
 
 #require_once "$IP/extensions/MobileFrontend/MobileFrontend.php";																 
