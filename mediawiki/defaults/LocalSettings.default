@@ -81,23 +81,27 @@ $wgEnableEmail      = true;
 $wgEnableUserEmail  = true; # UPO
 $wgSMTP = array(
                 'host'     => "smtphost",
-                'IDHost'   => "idhost",
+#                'IDHost'   => "idhost",
                 'port'     => 587,
                 'auth'     => true,
-                'username' => "wikisupport@clicklaw.bc.ca",
+                'username' => "user@email.com",
                 'password' => "password"
                 );
 
 // NEW: Use PHP default
 $wgSMTP = true;
 
-$wgUserEmailUseReplyTo = "user@email.com";
+$wgUserEmailUseReplyTo = true;
 $wgEmergencyContact = "user@email.com";
 $wgPasswordSender = "user@email.com";
 
-#$wgUserEmailUseReplyTo = "user@email.com";
-#$wgEmergencyContact = "user@email.com";
-#$wgPasswordSender   = "user@email.com";
+if ($devLive != "live") {
+    $wgRateLimits['password-reset'] = [
+        'user' => [ 0, 0 ],
+        'ip' => [ 0, 0 ],
+    ];
+}
+
 $wgEnotifUserTalk      = true; # UPO
 $wgEnotifWatchlist     = true; # UPO
 $wgEmailAuthentication = false;
@@ -612,29 +616,27 @@ $wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
 $wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
 
 
-function wfExpandUrlDocker( $url, $proto = PROTO_CURRENT ) {
-//    return wfExpandUrl($url, $proto);
+## robots.txt
 
-    $internalHost = getenv('WIKI_INTERNAL_HOSTNAME');
-    $expanded = wfExpandUrl( $url, $proto );
+# Flag to control whether robots.txt is written
+$wgEnableDynamicRobotsTxt = $devLive == "dev";
 
-    if (!$internalHost) {
-        return $expanded;
+# Path to the file to write or delete
+$robotsFilePath = $_SERVER['DOCUMENT_ROOT'] . '/robots.txt';
+
+# Content for the standard robots.txt file
+$robotsTxtContent = <<<EOT
+User-agent: *
+Disallow: /
+EOT;
+
+# Perform the write or delete logic
+if ($wgEnableDynamicRobotsTxt) {
+    if (!file_exists($robotsFilePath) || file_get_contents($robotsFilePath) !== $robotsTxtContent) {
+        file_put_contents($robotsFilePath, $robotsTxtContent);
     }
-
-    $parts = parse_url($expanded);
-    if (!$parts) {
-        return $expanded;
+} else {
+    if (file_exists($robotsFilePath)) {
+        unlink($robotsFilePath);
     }
-    $scheme = isset($parts['scheme']) ? $parts['scheme'] : 'http';
-    $host = $internalHost;
-    $port = isset($parts['port']) ? ':' . $parts['port'] : '';
-    $user = isset($parts['user']) ? $parts['user'] : '';
-    $pass = isset($parts['pass']) ? ':' . $parts['pass']  : '';
-    $pass = ($user || $pass) ? "$pass@" : '';
-    $path = isset($parts['path']) ? $parts['path'] : '';
-    $query = isset($parts['query']) ? '?' . $parts['query'] : '';
-    $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
-    return "$scheme://$user$pass$host$port$path$query$fragment";
 }
-

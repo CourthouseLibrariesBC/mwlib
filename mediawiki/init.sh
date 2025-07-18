@@ -62,19 +62,19 @@ echo "Generating and customizing LocalSettings.php..."
 
 #cp defaults/LocalSettings.default LocalSettings.php
 
-sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = \"https:\/\/${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = 'http:\/\/${PUBLIC_HOSTNAME}'/g" ${LOCAL_SETTINGS}
 #sed -i -E "s/wgServer = \"http:\/\/your.public.domain\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = '${PUBLIC_HOSTNAME}'/g" ${LOCAL_SETTINGS}
 
-sed -i -E "s/wgDBserver = \"[^\"]*\"/wgDBserver = \"${DB_SERVER}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/wgDBname = \"[^\"]*\"/wgDBname = \"${DB_NAME}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/wgDBuser = \"[^\"]*\"/wgDBuser = \"${DB_USER}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/wgDBpassword = \"[^\"]*\"/wgDBpassword = \"${DB_PASSWORD}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/wgBrowserFormatDetection=(.*);/wgBrowserFormatDetection = \"\1\";/g" ${LOCAL_SETTINGS}
-sed -i -E "s/'host' *=> \".*\"/'host' => \"${SMTP_HOST}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/'IDHost' *=> \".*\"/'IDHost' => \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/'username' *=> \".*\"/'username' => \"${SMTP_USER}\"/g" ${LOCAL_SETTINGS}
-sed -i -E "s/'password' *=> \".*\"/'password' => \"${SMTP_PASS}\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgDBserver = \"[^\"]*\"/wgDBserver = '${DB_SERVER}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgDBname = \"[^\"]*\"/wgDBname = '${DB_NAME}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgDBuser = \"[^\"]*\"/wgDBuser = '${DB_USER}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgDBpassword = \"[^\"]*\"/wgDBpassword = '${DB_PASSWORD}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgBrowserFormatDetection=(.*);/wgBrowserFormatDetection = '\1';/g" ${LOCAL_SETTINGS}
+sed -i -E "s/'host' *=> \".*\"/'host' => '${SMTP_HOST}'/g" ${LOCAL_SETTINGS}
+#sed -i -E "s/'IDHost' *=> \".*\"/'IDHost' => \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/'username' *=> \".*\"/'username' => '${SMTP_USER}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/'password' *=> \".*\"/'password' => '${SMTP_PASS}'/g" ${LOCAL_SETTINGS}
 sed -i -E "s/user@email.com/${EMAIL_CONTACT}/g" ${LOCAL_SETTINGS}
 
 echo "Updating database..."
