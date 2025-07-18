@@ -33,6 +33,8 @@ The `PRODUCTION_HOSTNAME` and `DATA_IMPORT_USER` variables are used for copying 
 
 If you specify a `COLLECTION_EXTENSION_PATH`, it will use local files for installing the Collection extension, otherwise it will install an exact commit from the required repo. Run `git submodule update --init --recursive` at the root of the mwlb repo to fetch the Collection repo.
 
+Move the `nginx.conf.default` to `nginx.conf`. If you are running the system on a public server, you will need to modify the file. If you are running this for local development, leave it alone and update your `/etc/hosts` file to point the local hostname `mediawiki` to `127.0.0.1`.
+
 And then run:
 
     $ docker compose up --build
