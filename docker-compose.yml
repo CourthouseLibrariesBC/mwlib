@@ -41,6 +41,7 @@ services:
       SMTP_HOST: ${SMTP_HOST}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
+      GTM_CODE: ${GTM_CODE}
 
   wiki-database:
     image: mariadb:11.6.2
@@ -155,19 +156,20 @@ services:
       - "80:80"
       - "443:443"
 
-#  certbot:
-#    image: certbot/certbot
-#    volumes:
-#      - ./certs:/etc/letsencrypt/
-#      - ./certbot:/var/lib/letsencrypt
-#    entrypoint: >
-#      /bin/sh -c 
-#      "trap exit TERM; 
-#      while :; do
-#      certbot renew --webroot -w /var/lib/letsencrypt --quiet;
-#      sleep 12h &
-#      wait $${!};
-#      done"
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certs:/etc/letsencrypt/
+      - ./certbot:/var/lib/letsencrypt
+#    entrypoint: ["sleep", "infinity"]  # Keeps the container running
+    entrypoint: >
+      /bin/sh -c 
+      "trap exit TERM; 
+      while :; do
+      certbot renew --webroot -w /var/lib/letsencrypt --quiet;
+      sleep 12h &
+      wait $${!};
+      done"
 
 
 volumes:
