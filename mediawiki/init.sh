@@ -70,12 +70,38 @@ sed -i -E "s/wgDBserver = \"[^\"]*\"/wgDBserver = '${DB_SERVER}'/g" ${LOCAL_SETT
 sed -i -E "s/wgDBname = \"[^\"]*\"/wgDBname = '${DB_NAME}'/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgDBuser = \"[^\"]*\"/wgDBuser = '${DB_USER}'/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgDBpassword = \"[^\"]*\"/wgDBpassword = '${DB_PASSWORD}'/g" ${LOCAL_SETTINGS}
+
 sed -i -E "s/wgBrowserFormatDetection=(.*);/wgBrowserFormatDetection = '\1';/g" ${LOCAL_SETTINGS}
+
 sed -i -E "s/'host' *=> \".*\"/'host' => '${SMTP_HOST}'/g" ${LOCAL_SETTINGS}
-#sed -i -E "s/'IDHost' *=> \".*\"/'IDHost' => \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
+sed -i -E "s/'IDHost' *=> \".*\"/'IDHost' => \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/'username' *=> \".*\"/'username' => '${SMTP_USER}'/g" ${LOCAL_SETTINGS}
-sed -i -E "s/'password' *=> \".*\"/'password' => '${SMTP_PASS}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s|'password' *=> \".*\"|'password' => '${SMTP_PASS}'|g" ${LOCAL_SETTINGS}
+
 sed -i -E "s/user@email.com/${EMAIL_CONTACT}/g" ${LOCAL_SETTINGS}
+
+
+cat <<EOF > /etc/msmtprc
+# /etc/msmtprc
+defaults
+auth           on
+tls            on
+tls_starttls   on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        /var/log/msmtp.log
+
+account        ses
+host           ${SMTP_HOST}
+port           ${SMTP_PORT}
+from           ${EMAIL_CONTACT}
+user           ${SMTP_USER}
+password       ${SMTP_PASS}
+
+account default : ses
+EOF
+chmod 600 /etc/msmtprc
+chown www-data:www-data /etc/msmtprc
+ln -sf /usr/bin/msmtp /usr/sbin/sendmail
 
 echo "Updating database..."
 php maintenance/update.php

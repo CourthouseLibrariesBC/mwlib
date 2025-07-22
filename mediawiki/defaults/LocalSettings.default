@@ -81,11 +81,12 @@ $wgEnableEmail      = true;
 $wgEnableUserEmail  = true; # UPO
 $wgSMTP = array(
                 'host'     => "smtphost",
-#                'IDHost'   => "idhost",
+                'IDHost'   => "idhost",
                 'port'     => 587,
                 'auth'     => true,
                 'username' => "user@email.com",
-                'password' => "password"
+                'password' => "password",
+                'secure'   => 'STARTTLS'
                 );
 
 // NEW: Use PHP default
@@ -96,10 +97,7 @@ $wgEmergencyContact = "user@email.com";
 $wgPasswordSender = "user@email.com";
 
 if ($devLive != "live") {
-    $wgRateLimits['password-reset'] = [
-        'user' => [ 0, 0 ],
-        'ip' => [ 0, 0 ],
-    ];
+  $wgPasswordAttemptThrottle = false;
 }
 
 $wgEnotifUserTalk      = true; # UPO
