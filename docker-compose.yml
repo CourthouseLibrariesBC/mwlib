@@ -42,7 +42,7 @@ services:
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
-      GTM_CODE: ${GTM_CODE}
+      GTM_ID: ${GTM_ID}
 
   wiki-database:
     image: mariadb:11.6.2
