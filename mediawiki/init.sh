@@ -3,6 +3,10 @@
 # TODO:
 # - Migrate whatever possible to the Mediawiki.Dockerfile
 
+escape_sed() {
+  printf '%s\n' "$1" | sed -e 's/[][\\.^$*+?{}|/]/\\&/g' -e 's/&/\\&/g'
+}
+
 # If the init script has already run, start apache
 if [[ -e /.mediawiki-initialized ]]; then
   apache2-foreground
@@ -76,7 +80,7 @@ sed -i -E "s/wgBrowserFormatDetection=(.*);/wgBrowserFormatDetection = '\1';/g" 
 sed -i -E "s/'host' *=> \".*\"/'host' => '${SMTP_HOST}'/g" ${LOCAL_SETTINGS}
 sed -i -E "s/'IDHost' *=> \".*\"/'IDHost' => \"${PUBLIC_HOSTNAME}\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/'username' *=> \".*\"/'username' => '${SMTP_USER}'/g" ${LOCAL_SETTINGS}
-sed -i -E "s|'password' *=> \".*\"|'password' => '${SMTP_PASS}'|g" ${LOCAL_SETTINGS}
+sed -i -E "s/'password' *=> \".*\"/'password' => '$(escape_sed ${SMTP_PASS})'/g" ${LOCAL_SETTINGS}
 
 sed -i -E "s/user@email.com/${EMAIL_CONTACT}/g" ${LOCAL_SETTINGS}
 
