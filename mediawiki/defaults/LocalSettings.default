@@ -12,21 +12,21 @@ $wgRunJobsAsync = false;
 #Added so importStyleSheet doesn't throw an error
 $wgIncludeLegacyJavaScript = true;
 
-# Debugging on by default
-$_GET['debug'] = true;
-$wgDebugToolbar = true;
-$wgShowSQLErrors = true;
-$wgDebugDumpSql  = true;
-$wgEnableJavaScriptTest = true;
-$wgDebugLogFile = "/var/log/php_debug";
+$_GET['debug'] = false;
+$wgDebugToolbar = false;
+$wgShowSQLErrors = false;
+$wgDebugDumpSql  = false;
+$wgEnableJavaScriptTest = false;
+$wgDebugLogFile = false;
 
-# Uncomment to silence debugging
-#$_GET['debug'] = false;
-#$wgDebugToolbar = false;
-#$wgShowSQLErrors = false;
-#$wgDebugDumpSql  = false;
-#$wgEnableJavaScriptTest = false;
-#$wgDebugLogFile = false;
+if $devLive == "dev" {
+	$_GET['debug'] = true;
+	$wgDebugToolbar = true;
+	$wgShowSQLErrors = true;
+	$wgDebugDumpSql  = true;
+	$wgEnableJavaScriptTest = true;
+	$wgDebugLogFile = "/var/log/php_debug";
+}
 
 # Uncomment for logging
 #$wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
