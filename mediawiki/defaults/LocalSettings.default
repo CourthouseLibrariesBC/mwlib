@@ -19,7 +19,7 @@ $wgDebugDumpSql  = false;
 $wgEnableJavaScriptTest = false;
 $wgDebugLogFile = false;
 
-if $devLive == "dev" {
+if ($devLive == "dev") {
 	$_GET['debug'] = true;
 	$wgDebugToolbar = true;
 	$wgShowSQLErrors = true;
