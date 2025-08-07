@@ -25,13 +25,10 @@ if ($devLive == "dev") {
 	$wgShowSQLErrors = true;
 	$wgDebugDumpSql  = true;
 	$wgEnableJavaScriptTest = true;
-	$wgDebugLogFile = "/var/log/php_debug";
+  $wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
+  $wgDebugLogGroups['Collection'] = "/var/log/apache2/debug-collection.log";
+  $wgDebugLogGroups['Echo'] = '/var/log/apache2/debug-echo.log';
 }
-
-# Uncomment for logging
-#$wgDebugLogFile = "/var/log/apache2/debug-{$wgDBname}.log";
-#$wgDebugLogGroups['Collection'] = "/var/log/apache2/debug-collection.log";
-#$wgDebugLogGroups['Echo'] = '/var/log/pache2/debug-echo.log';
 
 # Protect against web entry
 if ( !defined( 'MEDIAWIKI' ) ) {
@@ -75,8 +72,39 @@ $wgFavicon = "/images/clicklaw_wikibook_favicon.ico";
 ## or else you'll overwrite your logo when you upgrade!
 $wgLogo = "$wgScriptPath/images/clicklaw_logo_wiki.png";
 
-## UPO means: this is also a user preference option
+# Log extra details with SMTP messages
+$wgHooks['AlternateUserMailer'][] = function (
+    MailAddress $to,
+    MailAddress $from,
+    $subject,
+    $body,
+    &$error,
+    &$headers
+) {
+    // Tag the email with SES message tags
+    $tags = [
+        'source' => 'mediawiki',
+        'type' => 'notification',
+        'user' => urlencode( $to->address ), // avoid problems with special characters
+    ];
 
+    // Build the X-SES-MESSAGE-TAGS header
+    $headerValue = 'X-SES-MESSAGE-TAGS: ';
+    $pairs = [];
+    foreach ( $tags as $key => $value ) {
+        $pairs[] = "$key=$value";
+    }
+    $headerValue .= implode( ', ', $pairs );
+
+    // Add to headers array
+    $headers[] = $headerValue;
+
+    // Returning true allows the default email sending process to continue (with modified headers)
+    return true;
+};
+
+
+## UPO means: this is also a user preference option
 $wgEnableEmail      = true;
 $wgEnableUserEmail  = true; # UPO
 $wgSMTP = array(
@@ -96,7 +124,7 @@ $wgUserEmailUseReplyTo = true;
 $wgEmergencyContact = "user@email.com";
 $wgPasswordSender = "user@email.com";
 
-if ($devLive != "live") {
+if ($devLive == "dev") {
   $wgPasswordAttemptThrottle = false;
 }
 
