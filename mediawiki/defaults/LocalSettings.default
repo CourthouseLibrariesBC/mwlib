@@ -78,8 +78,7 @@ $wgHooks['AlternateUserMailer'][] = function (
     MailAddress $from,
     $subject,
     $body,
-    &$error,
-    &$headers
+    &$error
 ) {
     // Tag the email with SES message tags
     $tags = [
