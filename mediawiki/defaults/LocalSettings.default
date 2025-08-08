@@ -74,11 +74,11 @@ $wgLogo = "$wgScriptPath/images/clicklaw_logo_wiki.png";
 
 # Log extra details with SMTP messages
 $wgHooks['AlternateUserMailer'][] = function (
-    MailAddress $to,
-    MailAddress $from,
-    $subject,
-    $body,
-    &$error
+    array $to,  
+    array $from,
+    MailAddress $replyTo = null,
+    string $subject,
+    string $body
 ) {
     // Tag the email with SES message tags
     $tags = [
