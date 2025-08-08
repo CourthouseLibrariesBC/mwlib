@@ -123,8 +123,12 @@ $wgUserEmailUseReplyTo = true;
 $wgEmergencyContact = "user@email.com";
 $wgPasswordSender = "user@email.com";
 
+# Allow for easy testing of password reset emails.
 if ($devLive == "dev") {
-  $wgPasswordAttemptThrottle = false;
+  $wgPasswordReminderResendTime = 0;
+  $wgRateLimits['mailpassword']['ip']   = [ 50, 30 ];
+  $wgRateLimits['emailuser']['ip']      = [ 50, 30 ];
+  $wgPasswordAttemptThrottle = [ [ 'count' => 50, 'seconds' => 30 ] ];
 }
 
 $wgEnotifUserTalk      = true; # UPO
