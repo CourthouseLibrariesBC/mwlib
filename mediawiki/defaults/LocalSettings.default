@@ -72,37 +72,6 @@ $wgFavicon = "/images/clicklaw_wikibook_favicon.ico";
 ## or else you'll overwrite your logo when you upgrade!
 $wgLogo = "$wgScriptPath/images/clicklaw_logo_wiki.png";
 
-# Log extra details with SMTP messages
-$wgHooks['AlternateUserMailer'][] = function (
-    array $to,  
-    array $from,
-    MailAddress $replyTo = null,
-    string $subject,
-    string $body
-) {
-    // Tag the email with SES message tags
-    $tags = [
-        'source' => 'mediawiki',
-        'type' => 'notification',
-        'user' => urlencode( $to->address ), // avoid problems with special characters
-    ];
-
-    // Build the X-SES-MESSAGE-TAGS header
-    $headerValue = 'X-SES-MESSAGE-TAGS: ';
-    $pairs = [];
-    foreach ( $tags as $key => $value ) {
-        $pairs[] = "$key=$value";
-    }
-    $headerValue .= implode( ', ', $pairs );
-
-    // Add to headers array
-    $headers[] = $headerValue;
-
-    // Returning true allows the default email sending process to continue (with modified headers)
-    return true;
-};
-
-
 ## UPO means: this is also a user preference option
 $wgEnableEmail      = true;
 $wgEnableUserEmail  = true; # UPO
