@@ -23,6 +23,7 @@ services:
       - ./mediawiki/images:/var/www/html/images
       - ./mediawiki/extensions:/var/www/html/extensions
       - ./mediawiki/defaults/LocalSettings.default:/var/www/html/defaults/LocalSettings.default
+      - ./mediawiki/entrypoint.sh:/entrypoint.sh
       - ./mediawiki/init.sh:/init.sh
       - ./cache:/app/cache
     environment:
