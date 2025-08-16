@@ -21,16 +21,23 @@ COPY ./mediawiki/defaults/LocalSettings.default $LOCAL_SETTINGS
 
 COPY ./Collection /app/Collection
 
-# Let Composer run as root during build without complaints
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# ensure tools & composer env
+RUN apt-get update && apt-get install -y --no-install-recommends git unzip ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
-# Copy the Composer binary from the official composer image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+ENV COMPOSER_ALLOW_SUPERUSER=1 COMPOSER_MEMORY_LIMIT=-1 COMPOSER_HOME=/tmp/composer
+
 WORKDIR /var/www/html
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
-RUN composer require \
-      "mwstake/mediawiki-component-manifestregistry:^3.0" \
-      "mwstake/mediawiki-componentloader:^1" \
-      --update-no-dev --prefer-dist --no-interaction --no-progress
+
+# add your extra deps here
+COPY composer.local.json /var/www/html/composer.local.json
+
+# install (honors composer.lock + composer.local.json)
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress \
+ && rm -rf /tmp/composer
+
 
 # Set entrypoint to execute the install script before starting Apache
 ENTRYPOINT ["docker-php-entrypoint"]

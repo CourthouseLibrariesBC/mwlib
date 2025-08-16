@@ -1,0 +1,8 @@
+{
+  "require": {
+    "mwstake/mediawiki-component-manifestregistry": "^3.0",
+    "mwstake/mediawiki-componentloader": "^1"
+  }
+}
+
+
