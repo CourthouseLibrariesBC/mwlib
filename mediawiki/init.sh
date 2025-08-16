@@ -30,21 +30,20 @@ echo "Installing extentions..."
 mkdir -p ${EXTENSIONS_DIR}/
 cd ${EXTENSIONS_DIR}/
 
-wget ${EXTENSIONS_URL}/HeadScript-REL1_43-2a10bd3.tar.gz \
-${EXTENSIONS_URL}/Renameuser-REL1_43-7f8e398.tar.gz \
-${EXTENSIONS_URL}/Lingo-REL1_43-3714aef.tar.gz \
-https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v4.0.0.tar.gz \
-${EXTENSIONS_URL}/Quiz-REL1_43-d3d8313.tar.gz \
-${EXTENSIONS_URL}/MobileFrontend-REL1_43-01a2342.tar.gz \
-${EXTENSIONS_URL}/UserMerge-REL1_43-816da9f.tar.gz \
-${EXTENSIONS_URL}/Lockdown-REL1_43-7ac8966.tar.gz \
-${EXTENSIONS_URL}/EditAccount-REL1_43-2fe1b31.tar.gz \
-#${EXTENSIONS_URL}/CommentStreams-REL1_43-f3344da.tar.gz \
-${EXTENSIONS_URL}/Echo-REL1_43-ca7be2c.tar.gz \
-${EXTENSIONS_URL}/WhoIsWatching-REL1_43-2baa91d.tar.gz \
-${EXTENSIONS_URL}/ConfirmEdit-REL1_43-16cd01f.tar.gz \
-${EXTENSIONS_URL}/WikiEditor-REL1_43-668a9ae.tar.gz \
-${EXTENSIONS_URL}/ParserFunctions-REL1_43-84e4ff9.tar.gz
+wget ${EXTENSIONS_URL}/HeadScript-REL1_43-2a10bd3.tar.gz
+wget ${EXTENSIONS_URL}/Renameuser-REL1_43-7f8e398.tar.gz 
+wget ${EXTENSIONS_URL}/Lingo-REL1_43-3714aef.tar.gz 
+wget https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v4.0.0.tar.gz 
+wget ${EXTENSIONS_URL}/Quiz-REL1_43-d3d8313.tar.gz 
+wget ${EXTENSIONS_URL}/MobileFrontend-REL1_43-01a2342.tar.gz 
+wget ${EXTENSIONS_URL}/UserMerge-REL1_43-816da9f.tar.gz 
+wget ${EXTENSIONS_URL}/Lockdown-REL1_43-7ac8966.tar.gz 
+wget ${EXTENSIONS_URL}/EditAccount-REL1_43-2fe1b31.tar.gz 
+wget ${EXTENSIONS_URL}/Echo-REL1_43-ca7be2c.tar.gz 
+wget ${EXTENSIONS_URL}/WhoIsWatching-REL1_43-2baa91d.tar.gz 
+wget ${EXTENSIONS_URL}/ConfirmEdit-REL1_43-16cd01f.tar.gz 
+wget ${EXTENSIONS_URL}/WikiEditor-REL1_43-668a9ae.tar.gz 
+wget ${EXTENSIONS_URL}/ParserFunctions-REL1_43-84e4ff9.tar.gz
 
 rm -Rf CommentStreams
 git clone -b REL1_43 https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams.git CommentStreams
