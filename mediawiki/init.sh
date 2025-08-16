@@ -30,31 +30,34 @@ echo "Installing extentions..."
 mkdir -p ${EXTENSIONS_DIR}/
 cd ${EXTENSIONS_DIR}/
 
-wget ${EXTENSIONS_URL}/HeadScript-REL1_41-ac3bcc2.tar.gz \
-${EXTENSIONS_URL}/Renameuser-REL1_41-a93981c.tar.gz \
-${EXTENSIONS_URL}/Lingo-REL1_41-7472327.tar.gz \
-https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v3.4.2.tar.gz \
-${EXTENSIONS_URL}/Quiz-REL1_41-19518aa.tar.gz \
-${EXTENSIONS_URL}/MobileFrontend-REL1_41-9e2489b.tar.gz \
-${EXTENSIONS_URL}/UserMerge-REL1_41-9a30c61.tar.gz \
-${EXTENSIONS_URL}/Lockdown-REL1_41-445f530.tar.gz \
-${EXTENSIONS_URL}/EditAccount-REL1_41-822aac0.tar.gz \
-${EXTENSIONS_URL}/CommentStreams-REL1_41-5121daf.tar.gz \
-${EXTENSIONS_URL}/Echo-REL1_41-88415dd.tar.gz \
-${EXTENSIONS_URL}/WhoIsWatching-REL1_41-1c81208.tar.gz \
-${EXTENSIONS_URL}/ConfirmEdit-REL1_41-17bb33b.tar.gz \
-${EXTENSIONS_URL}/WikiEditor-REL1_41-c2f962a.tar.gz \
-${EXTENSIONS_URL}/ParserFunctions-REL1_41-69ba429.tar.gz
+wget ${EXTENSIONS_URL}/HeadScript-REL1_43-2a10bd3.tar.gz \
+${EXTENSIONS_URL}/Renameuser-REL1_43-7f8e398.tar.gz \
+${EXTENSIONS_URL}/Lingo-REL1_43-3714aef.tar.gz \
+https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v4.0.0.tar.gz \
+${EXTENSIONS_URL}/Quiz-REL1_43-d3d8313.tar.gz \
+${EXTENSIONS_URL}/MobileFrontend-REL1_43-01a2342.tar.gz \
+${EXTENSIONS_URL}/UserMerge-REL1_43-816da9f.tar.gz \
+${EXTENSIONS_URL}/Lockdown-REL1_43-7ac8966.tar.gz \
+${EXTENSIONS_URL}/EditAccount-REL1_43-2fe1b31.tar.gz \
+#${EXTENSIONS_URL}/CommentStreams-REL1_43-f3344da.tar.gz \
+${EXTENSIONS_URL}/Echo-REL1_43-ca7be2c.tar.gz \
+${EXTENSIONS_URL}/WhoIsWatching-REL1_43-2baa91d.tar.gz \
+${EXTENSIONS_URL}/ConfirmEdit-REL1_43-16cd01f.tar.gz \
+${EXTENSIONS_URL}/WikiEditor-REL1_43-668a9ae.tar.gz \
+${EXTENSIONS_URL}/ParserFunctions-REL1_43-84e4ff9.tar.gz
 
-mv mediawiki-extensions-EmbedVideo-3.4.2 EmbedVideo
+rm -Rf CommentStreams
+git clone -b REL1_43 https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams.git CommentStreams
 
 find . -name "*.tar.gz" -type f -exec tar -xvf {} \;
 rm *.tar.gz*
 
+rm -Rf EmbedVideo
+mv mediawiki-extensions-EmbedVideo-4.0.0 EmbedVideo
+
 cp -R /app/Collection .
 
 cd -
-
 
 # Install default LocalSettings.php
 
@@ -107,8 +110,8 @@ chmod 600 /etc/msmtprc
 chown www-data:www-data /etc/msmtprc
 ln -sf /usr/bin/msmtp /usr/sbin/sendmail
 
-echo "Updating database..."
-php maintenance/update.php
+#echo "Updating database..."
+#php maintenance/update.php
 
 # UpgradeKey
 UPGRADE_KEY=`openssl rand -hex 16`
@@ -161,6 +164,9 @@ EOF
 
 echo "Initialization complete..."
 touch /.mediawiki-initialized
+
+echo "Updating database..."
+php maintenance/update.php
 
 echo "Starting MediaWiki..."
 #php-fpm

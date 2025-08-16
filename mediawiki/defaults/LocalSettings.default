@@ -96,7 +96,7 @@ $wgPasswordSender = "user@email.com";
 if ($devLive == "dev") {
   $wgPasswordReminderResendTime = 0;
   $wgRateLimits['mailpassword']['ip']   = [ 50, 30 ];
-  $wgRateLimits['emailuser']['ip']      = [ 50, 30 ];
+  $wgRateLimits['sendemail']['ip']      = [ 50, 30 ];
   $wgPasswordAttemptThrottle = [ [ 'count' => 50, 'seconds' => 30 ] ];
 }
 
