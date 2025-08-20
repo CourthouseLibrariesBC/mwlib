@@ -53,3 +53,6 @@ notes.txt
 launch.json
 *.php.bak
 nginx.conf
+mediawiki/webroot/images
+mediawiki/webroot/extensions
+mediawiki/webroot/info.php
