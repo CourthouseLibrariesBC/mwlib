@@ -9,7 +9,8 @@ escape_sed() {
 
 # If the init script has already run, start apache
 if [[ -e /.mediawiki-initialized ]]; then
-  apache2-foreground
+  php-fpm
+#  apache2-foreground
   exit
 fi
 
@@ -28,22 +29,23 @@ sleep 9
 echo "Installing extentions..."
 
 mkdir -p ${EXTENSIONS_DIR}/
-cd ${EXTENSIONS_DIR}/
+cd ${EXTENSIONS_DIR}/ || { echo "Failed to cd into ${EXTENSIONS_DIR}"; exit 1; }
+rm -Rf *
 
 wget ${EXTENSIONS_URL}/HeadScript-REL1_43-2a10bd3.tar.gz
 wget ${EXTENSIONS_URL}/Renameuser-REL1_43-7f8e398.tar.gz 
 wget ${EXTENSIONS_URL}/Lingo-REL1_43-3714aef.tar.gz 
 wget https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v4.0.0.tar.gz 
 wget ${EXTENSIONS_URL}/Quiz-REL1_43-d3d8313.tar.gz 
-wget ${EXTENSIONS_URL}/MobileFrontend-REL1_43-01a2342.tar.gz 
+wget ${EXTENSIONS_URL}/MobileFrontend-REL1_43-6fbfcff.tar.gz
 wget ${EXTENSIONS_URL}/UserMerge-REL1_43-816da9f.tar.gz 
 wget ${EXTENSIONS_URL}/Lockdown-REL1_43-7ac8966.tar.gz 
 wget ${EXTENSIONS_URL}/EditAccount-REL1_43-2fe1b31.tar.gz 
-wget ${EXTENSIONS_URL}/Echo-REL1_43-ca7be2c.tar.gz 
+wget ${EXTENSIONS_URL}/Echo-REL1_43-c1b049e.tar.gz
 wget ${EXTENSIONS_URL}/WhoIsWatching-REL1_43-2baa91d.tar.gz 
-wget ${EXTENSIONS_URL}/ConfirmEdit-REL1_43-16cd01f.tar.gz 
-wget ${EXTENSIONS_URL}/WikiEditor-REL1_43-668a9ae.tar.gz 
-wget ${EXTENSIONS_URL}/ParserFunctions-REL1_43-84e4ff9.tar.gz
+wget ${EXTENSIONS_URL}/ConfirmEdit-REL1_43-845db6e.tar.gz
+wget ${EXTENSIONS_URL}/WikiEditor-REL1_43-6c5e81a.tar.gz
+wget ${EXTENSIONS_URL}/ParserFunctions-REL1_43-f5aaf52.tar.gz
 
 rm -Rf CommentStreams
 git clone -b REL1_43 https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams.git CommentStreams
@@ -128,18 +130,20 @@ rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USE
 
 mysql -u $DB_USER -p$DB_PASSWORD -h $DB_SERVER $DB_NAME < /app/data_import/$DATA_FILE
 
+rm -Rf /app/data_import
+
 # Copy the data and image files
 
-echo "Importing static files from production..."
+#echo "Importing static files from production..."
 
-rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_HOSTNAME:~/images/* /var/www/html/images/
+#rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_HOSTNAME:~/images/* /var/www/html/images/
 
 # Prepare logs
 
 # Remove symlinks that redirect files to stdout and stderr
-rm /var/log/apache2/access.log
-rm /var/log/apache2/error.log
-rm /var/log/apache2/other_vhosts_access.log
+#rm /var/log/apache2/access.log
+#rm /var/log/apache2/error.log
+#rm /var/log/apache2/other_vhosts_access.log
 
 echo "<?php
 phpinfo();
@@ -151,15 +155,15 @@ error_log = '/var/log/php_errors.log'" > /usr/local/etc/php/php.ini
 #echo "ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/apache2.conf
 #echo "CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/apache2.conf
 
-cat <<EOF >> /etc/apache2/apache2.conf
-Alias /cache/ /app/cache/
-<Directory /app/cache/>
-    Options Indexes FollowSymLinks
-    AllowOverride None
-    Require all granted
-</Directory>
-AddType application/pdf .pdf
-EOF
+#cat <<EOF >> /etc/apache2/apache2.conf
+#Alias /cache/ /app/cache/
+#<Directory /app/cache/>
+#    Options Indexes FollowSymLinks
+#    AllowOverride None
+#    Require all granted
+#</Directory>
+#AddType application/pdf .pdf
+#EOF
 
 echo "Initialization complete..."
 touch /.mediawiki-initialized
@@ -167,7 +171,9 @@ touch /.mediawiki-initialized
 echo "Updating database..."
 php maintenance/update.php
 
+chown -R www-data:www-data *
+
 echo "Starting MediaWiki..."
-#php-fpm
-apache2-foreground
+php-fpm
+#apache2-foreground
 
