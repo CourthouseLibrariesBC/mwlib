@@ -32,29 +32,41 @@ mkdir -p ${EXTENSIONS_DIR}/
 cd ${EXTENSIONS_DIR}/ || { echo "Failed to cd into ${EXTENSIONS_DIR}"; exit 1; }
 rm -Rf *
 
-wget ${EXTENSIONS_URL}/HeadScript-REL1_43-2a10bd3.tar.gz
-wget ${EXTENSIONS_URL}/Renameuser-REL1_43-7f8e398.tar.gz 
-wget ${EXTENSIONS_URL}/Lingo-REL1_43-3714aef.tar.gz 
+# TODO: These filenames seem to change on occasion. Change them to git clones.
+#wget ${EXTENSIONS_URL}/HeadScript-REL1_43-2a10bd3.tar.gz
+#wget ${EXTENSIONS_URL}/Renameuser-REL1_43-7f8e398.tar.gz # Merged into code
+#wget ${EXTENSIONS_URL}/Lingo-REL1_43-3714aef.tar.gz 
 wget https://github.com/StarCitizenWiki/mediawiki-extensions-EmbedVideo/archive/refs/tags/v4.0.0.tar.gz 
-wget ${EXTENSIONS_URL}/Quiz-REL1_43-d3d8313.tar.gz 
-wget ${EXTENSIONS_URL}/MobileFrontend-REL1_43-6fbfcff.tar.gz
-wget ${EXTENSIONS_URL}/UserMerge-REL1_43-816da9f.tar.gz 
-wget ${EXTENSIONS_URL}/Lockdown-REL1_43-7ac8966.tar.gz 
-wget ${EXTENSIONS_URL}/EditAccount-REL1_43-2fe1b31.tar.gz 
-wget ${EXTENSIONS_URL}/Echo-REL1_43-c1b049e.tar.gz
-wget ${EXTENSIONS_URL}/WhoIsWatching-REL1_43-2baa91d.tar.gz 
-wget ${EXTENSIONS_URL}/ConfirmEdit-REL1_43-845db6e.tar.gz
-wget ${EXTENSIONS_URL}/WikiEditor-REL1_43-6c5e81a.tar.gz
-wget ${EXTENSIONS_URL}/ParserFunctions-REL1_43-f5aaf52.tar.gz
-
-rm -Rf CommentStreams
-git clone -b REL1_43 https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams.git CommentStreams
+# wget ${EXTENSIONS_URL}/Quiz-REL1_43-d3d8313.tar.gz 
+# wget ${EXTENSIONS_URL}/MobileFrontend-REL1_43-6fbfcff.tar.gz
+#wget ${EXTENSIONS_URL}/UserMerge-REL1_43-816da9f.tar.gz 
+#wget ${EXTENSIONS_URL}/Lockdown-REL1_43-7ac8966.tar.gz 
+#wget ${EXTENSIONS_URL}/EditAccount-REL1_43-2fe1b31.tar.gz 
+#wget ${EXTENSIONS_URL}/Echo-REL1_43-c1b049e.tar.gz
+#wget ${EXTENSIONS_URL}/WhoIsWatching-REL1_43-2baa91d.tar.gz 
+#wget ${EXTENSIONS_URL}/ConfirmEdit-REL1_43-b6f02db.tar.gz
+#wget ${EXTENSIONS_URL}/WikiEditor-REL1_43-6c5e81a.tar.gz
+#wget ${EXTENSIONS_URL}/ParserFunctions-REL1_43-f5aaf52.tar.gz
 
 find . -name "*.tar.gz" -type f -exec tar -xvf {} \;
 rm *.tar.gz*
 
-rm -Rf EmbedVideo
 mv mediawiki-extensions-EmbedVideo-4.0.0 EmbedVideo
+
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/HeadScript
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/Lingo
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/Quiz
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/MobileFrontend
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/UserMerge
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/Lockdown
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/EditAccount
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/Echo
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/WhoIsWatching
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/ConfirmEdit
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/WikiEditor
+git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/ParserFunctions
+git clone -b REL1_43 https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams.git CommentStreams
+
 
 cp -R /app/Collection .
 
