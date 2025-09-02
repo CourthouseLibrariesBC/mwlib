@@ -252,7 +252,7 @@ wfLoadExtensions(array(
     'WikiEditor',
 	//'Nuke', 		
     'ParserFunctions', 
-    'Renameuser', 
+    //'Renameuser', 
     'Lingo', 
 	//'CollapsibleVector',
     //'ArticleFeedbackv5',					  
