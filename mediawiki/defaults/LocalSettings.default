@@ -610,9 +610,9 @@ $wgHooks['BeforePageDisplay'][] = function( OutputPage $out, Skin $skin ) {
 };
 
 # UNCOMMENT TO DISABLE ALL EDITING
-$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
-$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
-$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
+#$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
+#$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
+#$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
 
 
 ## robots.txt
