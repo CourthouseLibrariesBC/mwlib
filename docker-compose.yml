@@ -162,7 +162,9 @@ services:
       - ./cache:/app/cache
 
   nginx:
-    image: nginx:1.25
+    build:
+      context: .
+      dockerfile: docker/Nginx.Dockerfile
     restart: unless-stopped
     depends_on:
       - mediawiki
