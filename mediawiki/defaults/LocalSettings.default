@@ -1,6 +1,6 @@
 <?php
 
-$devLive = getenv("PUBLIC_HOSTNAME") == getenv("PRODUCTION_HOSTNAME") ? "live" : "dev";
+$devLive = getenv("PUBLIC_HOSTNAME") == str_replace("console.", "", getenv("PRODUCTION_HOSTNAME")) ? "live" : "dev";
 
 #Do jobs realtime:
 $wgRunJobsAsync = false;
@@ -610,9 +610,9 @@ $wgHooks['BeforePageDisplay'][] = function( OutputPage $out, Skin $skin ) {
 };
 
 # UNCOMMENT TO DISABLE ALL EDITING
-$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
-$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
-$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
+#$wgGroupPermissions['*']['edit'] = false;       # Blocks anonymous users
+#$wgGroupPermissions['user']['edit'] = false;    # Blocks registered users
+#$wgGroupPermissions['sysop']['edit'] = true;    # Allows admins (sysops) to edit
 
 
 ## robots.txt
