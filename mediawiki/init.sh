@@ -137,8 +137,8 @@ mkdir ~/.ssh
 chmod 700 ~/.ssh
 touch ~/.ssh/known_hosts
 chmod 644 ~/.ssh/known_hosts
-ssh-keyscan -H "$PRODUCTION_HOSTNAME" >> ~/.ssh/known_hosts
-rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_HOSTNAME:~/$DATA_FILE /app/data_import/
+ssh-keyscan -H "$PRODUCTION_SSH_HOST" >> ~/.ssh/known_hosts
+rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_SSH_HOST:~/$DATA_FILE /app/data_import/
 
 mysql -u $DB_USER -p$DB_PASSWORD -h $DB_SERVER $DB_NAME < /app/data_import/$DATA_FILE
 
@@ -148,7 +148,7 @@ rm -Rf /app/data_import
 
 #echo "Importing static files from production..."
 
-#rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_HOSTNAME:~/images/* /var/www/html/images/
+#rsync -e "ssh -i /app/.ssh/id_docker_data" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_SSH_HOST:~/images/* /var/www/html/images/
 
 # Prepare logs
 
