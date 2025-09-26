@@ -173,7 +173,8 @@ services:
         aliases:
           - mediawiki
     volumes:
-      - mediawiki_html:/var/www/html:ro
+      - mediawiki_html:/var/www/html
+      - ./prerender:/var/www/html/prerender
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certbot:/var/lib/letsencrypt
       - ./certs:/etc/letsencrypt/
