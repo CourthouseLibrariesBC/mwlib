@@ -12,7 +12,7 @@ RUN apt-get update && \
       -o Acquire::BrokenProxy="true" \
       -o Acquire::http::No-Cache="true" \
       -o Acquire::http::Pipeline-Depth="0" \
-      -y install wget man vim curl iputils-ping imagemagick openssh-client rsync mariadb-client msmtp msmtp-mta
+      -y install wget man vim curl iputils-ping tcpdump imagemagick openssh-client rsync mariadb-client msmtp msmtp-mta
 
 RUN rm -f /.mediawiki-initialized
 
