@@ -45,8 +45,6 @@ RUN ssh-keyscan -H -t ed25519 $PRODUCTION_SSH_HOST > /tmp/known_hosts
 #RUN ssh -vvv -i /app/.ssh/id_docker_data  $DATA_IMPORT_USER@$PRODUCTION_SSH_HOST
 RUN rsync -e "ssh -i /app/.ssh/id_docker_data -o UserKnownHostsFile=/tmp/known_hosts -o StrictHostKeyChecking=yes" --progress --archive $DATA_IMPORT_USER@$PRODUCTION_SSH_HOST:~/images/* /var/www/html/images/
 
-RUN chown -R www-data:www-data /app/cache
-
 # Set entrypoint to execute the install script before starting Apache
 ENTRYPOINT ["docker-php-entrypoint"]
 
