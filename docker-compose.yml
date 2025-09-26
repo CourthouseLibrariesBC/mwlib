@@ -62,6 +62,8 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       GTM_ID: ${GTM_ID}
+    expose:
+      - "9000"
 
   wiki-database:
     image: mariadb:11.6.2
