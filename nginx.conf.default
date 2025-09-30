@@ -26,6 +26,8 @@ http {
     	}
     }
     
+    client_max_body_size 100M;
+
     #    # Disable logging
     #    access_log /dev/null;
     #    error_log /dev/null crit;
@@ -37,6 +39,8 @@ http {
 #
 #    ssl_certificate     /etc/letsencrypt/live/dev.wiki.clicklaw.bc.ca/fullchain.pem;
 #    ssl_certificate_key /etc/letsencrypt/live/dev.wiki.clicklaw.bc.ca/privkey.pem;
+#
+#    client_max_body_size 100M;
 #
 #    location / {
 #        proxy_pass http://mediawiki:80;
