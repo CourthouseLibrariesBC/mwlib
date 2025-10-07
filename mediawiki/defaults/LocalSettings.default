@@ -54,7 +54,7 @@ $wgScriptExtension  = ".php";
 
 #$wgUsePathInfo = false;
 
-if ($devLive == "live") {
+if ($devLive == "live" ||  is_fully_qualified_domain(getenv("PUBLIC_HOSTNAME"))) {
   $wgServer = "https://mediawiki";
 } else {
   $wgServer = "http://mediawiki";
@@ -643,3 +643,41 @@ if ($wgEnableDynamicRobotsTxt) {
         unlink($robotsFilePath);
     }
 }
+
+
+function is_fully_qualified_domain(string $hostname): bool
+{
+    // Trim and convert to lowercase
+    $hostname = strtolower(trim($hostname));
+
+    // Reject empty or invalid characters
+    if (!preg_match('/^[a-z0-9.-]+$/', $hostname)) {
+        return false;
+    }
+
+    // Must contain at least one dot separating labels
+    if (substr_count($hostname, '.') < 1) {
+        return false;
+    }
+
+    // Each label must start and end with alphanumeric chars and be <=63 chars
+    $labels = explode('.', $hostname);
+    foreach ($labels as $label) {
+        if ($label === '' || strlen($label) > 63) {
+            return false;
+        }
+        if (!preg_match('/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/', $label)) {
+            return false;
+        }
+    }
+
+    // TLD must be at least 2 characters long and alphabetic
+    $tld = end($labels);
+    if (!preg_match('/^[a-z]{2,}$/', $tld)) {
+        return false;
+    }
+
+    return true;
+}
+
+
