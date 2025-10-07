@@ -49,7 +49,10 @@ def _init():
     _initialized = True
 
 
-def run_cmd(args, timeout=None):
+def run_cmd(args, timeout=None, cwd=None, env=None):
+    """
+    Return (exitcode, stdout_str). Ensures stdout is str even if collected as bytes.
+    """
     _init()
     args = list(args)
     for i, x in enumerate(args):
@@ -106,10 +109,19 @@ def run_cmd(args, timeout=None):
         st = pid2status[pid].get()
         del pid2status[pid]
 
-        if int(sys.version[0]) < 3:
-            return st, "".join(chunks)
+        # --- FIX: handle bytes vs str safely ---
+        if chunks:
+            if isinstance(chunks[0], bytes):
+                try:
+                    stdout = b"".join(chunks).decode("utf-8", "replace")
+                except Exception:
+                    stdout = b"".join(chunks).decode(errors="replace")
+            else:
+                # All strings already
+                stdout = "".join(chunks)
         else:
-            return st, (b"".join(chunks)).decode("utf-8")
+            stdout = ""
+        return st, stdout
     except Timeout as t:
         if t is not timeout:
             raise
