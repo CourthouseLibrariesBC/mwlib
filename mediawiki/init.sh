@@ -82,7 +82,8 @@ echo "Generating and customizing LocalSettings.php..."
 
 #cp defaults/LocalSettings.default LocalSettings.php
 
-sed -i -E "s/wgServer = \"[^\"]*\"/wgServer = 'https:\/\/${PUBLIC_HOSTNAME}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgServer = \"https:\/\/[^\"]*\"/wgServer = 'https:\/\/${PUBLIC_HOSTNAME}'/g" ${LOCAL_SETTINGS}
+sed -i -E "s/wgServer = \"http:\/\/[^\"]*\"/wgServer = 'http:\/\/${PUBLIC_HOSTNAME}'/g" ${LOCAL_SETTINGS}
 #sed -i -E "s/wgServer = \"http:\/\/your.public.domain\"/wgServer = \"http:\/\/${PUBLIC_HOSTNAME}\\/\"/g" ${LOCAL_SETTINGS}
 sed -i -E "s/wgServerName = \"[^\"]*\"/wgServerName = '${PUBLIC_HOSTNAME}'/g" ${LOCAL_SETTINGS}
 
@@ -184,6 +185,11 @@ echo "Updating database..."
 php maintenance/update.php
 
 chown -R www-data:www-data *
+
+echo "memory_limit = 1024M" >> /usr/local/etc/php/php.ini
+
+touch /var/log/php_errors.log
+chmod a+w /var/log/php_errors.log
 
 echo "Starting MediaWiki..."
 php-fpm

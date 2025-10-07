@@ -1,5 +1,7 @@
 """WSGI server interface to mw-render and mw-zip/mw-post"""
 
+import debugpy
+
 import importlib.metadata
 import logging
 import os
@@ -14,7 +16,7 @@ from io import StringIO
 
 import gevent.monkey
 import requests
-from bottle import HTTPResponse, default_app, get, post, request, route, static_file
+from bottle import HTTPResponse, default_app, get, post, request, route, static_file, error, response, BaseRequest
 from gevent import pool, pywsgi
 
 from mwlib.core.metabook import calc_checksum
@@ -24,6 +26,8 @@ from qs import rpcclient
 from qs.misc import CallInLoop
 
 log = logging.getLogger("mwlib.serve")
+
+MAX_CONTENT_LENGTH = None
 
 if __name__ == "__main__":
     gevent.monkey.patch_all()
@@ -388,6 +392,7 @@ class Application:
         return retval(state="finished", **more)
 
     def do_render_status(self, collection_id, post_data, is_new=False):
+
         if is_new:
             return self.error_response("POST argument required: collection_id")
 
@@ -423,6 +428,7 @@ class Application:
         return retval(state="progress", status=info)
 
     def do_download(self, collection_id, post_data, is_new=False):
+        
         if is_new:
             return self.error_response("POST argument required: collection_id")
 
@@ -506,6 +512,8 @@ def _parse_qs(q_serve):
         else:
             q_serve[i] = (arg, 14311)
 
+# Increase Bottle's in-memory request/body threshold (default ~100KB)
+BaseRequest.MEMFILE_MAX = 50 * 1024 * 1024  # 50 MB
 
 def main():
     opts, args = argv.parse(
@@ -524,8 +532,15 @@ def main():
         elif opt in ("-i", "--interface"):
             interface = arg
 
+    # Wait for debugger to attach if running under debugpy
+    if os.environ.get("DEBUGPY", "0") == "1":
+        print("Waiting for debugger to attach...")
+        # debugpy.listen(("0.0.0.0", 5679))  # Port should match your launch.json
+        debugpy.wait_for_client()
+        print("Debugger attached, continuing execution.")
+    
     print("using the following writers", sorted(name2writer.keys()))
-
+    
     q_serve += args
 
     if not q_serve:
@@ -537,6 +552,7 @@ def main():
     server = pywsgi.WSGIServer(address, default_app())
 
     watchers = pool.Pool()
+
     for watcher in q_serve:
         watchers.spawn(CallInLoop(5.0, WatchQServe(watcher, busy)))
 

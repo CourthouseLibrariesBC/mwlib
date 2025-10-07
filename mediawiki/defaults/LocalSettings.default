@@ -54,7 +54,11 @@ $wgScriptExtension  = ".php";
 
 #$wgUsePathInfo = false;
 
-$wgServer = "http://mediawiki";
+if ($devLive == "live") {
+  $wgServer = "https://mediawiki";
+} else {
+  $wgServer = "http://mediawiki";
+}
 
 #if (php_sapi_name() === 'cli-server' || $_SERVER['REMOTE_ADDR'] === '172.18.0.1') {
 #    $wgServer = "http://mediawiki";
