@@ -3,6 +3,8 @@ if __name__ == "__main__":
 
     monkey.patch_all()
 
+import debugpy
+
 import logging
 import os
 import socket
@@ -10,7 +12,7 @@ import sys
 import time
 from mwlib.utils.unorganized import fs_escape
 
-from bottle import default_app, route, static_file
+from bottle import default_app, route, static_file, BaseRequest
 
 from mwlib.core.nserve import name2writer
 from mwlib.utils import myjson, argv
@@ -247,6 +249,12 @@ class Commands:
 def start_serving_files(cachedir, address, port):
     from gevent.pywsgi import WSGIServer
 
+    if os.environ.get("DEBUGPY", "0") == "1":
+        print("Waiting for debugger to attach...")
+        # debugpy.listen(("0.0.0.0", 5678))  # Port should match your launch.json
+        debugpy.wait_for_client()
+        print("Debugger attached, continuing execution.")
+
     cachedir = os.path.abspath(cachedir)
     logger.info(f"serving files from {cachedir!r}")
     s = WSGIServer((address, port), default_app())
@@ -274,6 +282,8 @@ def server_static(filename):
         response.headers["Content-Disposition"] = "inline; filename=collection.pdf"
     return response
 
+# Increase Bottle's in-memory request/body threshold (default ~100KB)
+BaseRequest.MEMFILE_MAX = 50 * 1024 * 1024  # 50 MB
 
 def main():
     global CACHE_DIR, CACHE_URL

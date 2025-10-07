@@ -62,6 +62,7 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       GTM_ID: ${GTM_ID}
+      PHP_MEMORY_LIMIT: 1024M
     expose:
       - "9000"
 
@@ -111,10 +112,10 @@ services:
       # --port 8090
       # --numprocs 2 
       # -c makezip
-#    ports:
-#      - "5678:5678"
+    ports:
+      - "5678:5678"
     environment:
-      DEBUGPY: 1
+      DEBUGPY: 0
       GEVENT_SUPPORT: True
     depends_on:
       - base
@@ -129,8 +130,16 @@ services:
     depends_on:
       - base
       - q_serve
+    environment:
+      DEBUGPY: 0
+      GEVENT_SUPPORT: True
+    command: >
+      python
+      -u -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5680 -m mwlib.core.nserve q_serve:8090
     expose:
       - "8899"
+    ports:
+      - "5680:5680"
 
   render_worker:
     build:
@@ -155,10 +164,10 @@ services:
       # --numprocs 2
       # --url http://render_worker:9123/cache
       # -c render
-#    ports:
-#      - "5679:5679"
+    ports:
+      - "5679:5679"
     environment:
-      DEBUGPY: 1
+      DEBUGPY: 0
       GEVENT_SUPPORT: True
     volumes:
       - ./cache:/app/cache
@@ -177,15 +186,15 @@ services:
     volumes:
       - mediawiki_html:/var/www/html
       - ./prerender:/var/www/html/prerender
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - ./certbot:/var/lib/letsencrypt
       - ./certs:/etc/letsencrypt/
       - ./cache:/app/cache
+    expose:  
+      - "8080:80"
     ports:
       - "80:80"
       - "443:443"
-    expose:  
-      - "8080:80"
 
   certbot:
     image: certbot/certbot
