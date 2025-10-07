@@ -10,7 +10,7 @@ from gettext import gettext as _
 
 from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus.paragraph import Paragraph
-from reportlab.platypus.tables import Table
+from reportlab.platypus.tables import Table, TableStyle  # ensure TableStyle imported if needed
 
 from mwlib.writers.rl import fontconfig, pdfstyles
 
@@ -31,14 +31,49 @@ class TocRenderer:
         return self.combine_pdfs(pdfpath, tocpath, finalpath, has_title_page)
 
     def _get_col_widths(self):
-        paragraph = Paragraph(
-            "<b>%d</b>" % 9999, pdfstyles.text_style(mode="toc_article",
-                                                     text_align="right")
+        """
+        Return safe [title_col_width, page_col_width].
+
+        Original logic could yield 0 or negative width for the title column
+        when the page number sample width ~= PRINT_WIDTH (or rounding).
+        """
+        # Measure a sample page number with a realistic wrapping width
+        sample_para = Paragraph(
+            "<b>9999</b>",
+            pdfstyles.text_style(mode="toc_article", text_align="right"),
         )
-        width, _ = paragraph.wrap(0, pdfstyles.PRINT_HEIGHT)
-        # subtracting 30pt below is *probably* necessary b/c
-        # of the table margins
-        return [pdfstyles.PRINT_WIDTH - width - 30, width]
+        # Wrap with full printable width so we get intrinsic width of the short sample
+        sample_w, _ = sample_para.wrap(pdfstyles.PRINT_WIDTH, pdfstyles.PRINT_HEIGHT)
+
+        PRINT_W = pdfstyles.PRINT_WIDTH
+        GAP = 30          # existing heuristic gap
+        MIN_TITLE = 80    # ensure room for text (>= padding + content)
+        MIN_PAGE = 30
+
+        # Cap page column to at most 25% of printable width
+        page_col = int(min(max(sample_w, MIN_PAGE), PRINT_W * 0.25))
+        title_col = PRINT_W - page_col - GAP
+
+        if title_col < MIN_TITLE:
+            # Shrink page column to free space
+            needed = MIN_TITLE - title_col
+            page_col = max(MIN_PAGE, page_col - needed)
+            title_col = PRINT_W - page_col - GAP
+
+        # Final clamps
+        if title_col < MIN_TITLE:
+            title_col = MIN_TITLE
+        if page_col < MIN_PAGE:
+            page_col = MIN_PAGE
+
+        # If still overflowing, proportionally scale
+        total = title_col + page_col + GAP
+        if total > PRINT_W:
+            scale = (PRINT_W - GAP) / (title_col + page_col)
+            title_col = max(MIN_TITLE, int(title_col * scale))
+            page_col = max(MIN_PAGE, int(page_col * scale))
+
+        return [title_col, page_col]
 
     def render_toc(self, tocpath, toc_entries, rtl):
         doc = SimpleDocTemplate(tocpath, pagesize=(pdfstyles.PAGE_WIDTH,
@@ -55,6 +90,10 @@ class TocRenderer:
         toc_table = []
         styles = []
         col_widths = self._get_col_widths()
+
+        # Safety: ensure no zero/negative after earlier math
+        col_widths = [max(40, int(w)) for w in col_widths]
+
         for row_idx, (lvl, txt, page_num) in enumerate(toc_entries):
             if lvl == "article":
                 page_num = str(page_num)
