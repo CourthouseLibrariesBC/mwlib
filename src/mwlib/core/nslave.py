@@ -214,6 +214,7 @@ class Commands:
             )
             
             mb = myjson.loads(metabook_data)
+            print(f"rpc_render mb keys: {list(mb.keys())}")
             book_title = mb["title"] or "Clicklaw Custom Book"
             safe_title = fs_escape(book_title)
             book_file = f"{safe_title}.{name2writer[writer].file_extension}"
