@@ -3,6 +3,7 @@
 
 import contextlib
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import urllib.parse
 
@@ -16,6 +17,60 @@ from mwlib.parser.parse_collection_page import extract_metadata
 from mwlib.utils import myjson
 
 logger = logging.getLogger(__name__)
+
+def _safe_log_metabook(log, metabook, prefix="make_nuwiki metabook"):
+    try:
+        js = metabook.dumps()
+    except Exception as e:
+        log.warning("%s: dumps() failed: %s", prefix, e)
+        return
+    # Trim very large payloads
+    if len(js) > 120000:
+        log.info("%s (truncated): %s...", prefix, js[:120000])
+    else:
+        log.info("%s: %s", prefix, js)
+    # ensure write-through
+    for h in log.handlers:
+        try:
+            h.flush()
+        except Exception:
+            pass
+
+# Dedicated file logger that won't affect the existing one
+def _make_file_logger():
+    name = __name__ + ".file"
+    log = logging.getLogger(name)
+    if getattr(log, "_configured", False):
+        return log
+
+    path = os.getenv("MWLIB_MAKE_NUWIKI_LOG", "/tmp/mwlib_make_nuwiki.log")
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    except Exception:
+        pass
+
+    max_bytes = int(os.getenv("MWLIB_LOG_MAX_BYTES", "10485760"))  # 10MB
+    backups = int(os.getenv("MWLIB_LOG_BACKUPS", "5"))
+    level_name = os.getenv("MWLIB_MAKE_NUWIKI_LOG_LEVEL", "DEBUG").upper()
+    level = getattr(logging, level_name, logging.DEBUG)
+
+    fh = RotatingFileHandler(path, maxBytes=max_bytes, backupCount=backups)
+    fh.setLevel(level)
+    fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+
+    log.addHandler(fh)
+    log.setLevel(level)
+    log.propagate = False  # do not bubble to parent/root
+    # record the actual file path for later messages
+    try:
+        log._log_path = os.path.abspath(fh.baseFilename)
+    except Exception:
+        log._log_path = path
+    log._configured = True
+    return log
+
+file_logger = _make_file_logger()
+file_logger.info("make_nuwiki file logger initialized at %s", getattr(file_logger, "_log_path", "unknown"))
 
 
 class StartFetcher:
@@ -214,6 +269,8 @@ def make_nuwiki(
     status,
 ):
     logger.info("making nuwiki")
+    _safe_log_metabook(file_logger, metabook)
+
     id2wiki = get_id_wikis(metabook)
 
     is_multiwiki = len(id2wiki) > 1
