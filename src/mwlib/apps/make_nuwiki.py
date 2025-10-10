@@ -269,7 +269,12 @@ def make_nuwiki(
     status,
 ):
     logger.info("making nuwiki")
-    _safe_log_metabook(file_logger, metabook)
+    try:
+        cnt = len(list(metabook.get_articles()))
+    except Exception:
+        cnt = -1
+    file_logger.info("make_nuwiki metabook article count=%s", cnt)
+    #_safe_log_metabook(file_logger, metabook)
 
     id2wiki = get_id_wikis(metabook)
 
