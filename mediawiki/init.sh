@@ -184,6 +184,7 @@ touch /.mediawiki-initialized
 echo "Updating database..."
 php maintenance/update.php
 
+chmod 1777 /app/cache
 chown -R www-data:www-data *
 
 echo "memory_limit = 1024M" >> /usr/local/etc/php/php.ini
