@@ -46,6 +46,8 @@ services:
       - ./mediawiki/init.sh:/init.sh
       - ./cache:/app/cache
     environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
       WIKI_INTERNAL_HOSTNAME: mediawiki
       WIKI_NAME: ${WIKI_NAME}
@@ -72,6 +74,8 @@ services:
     image: mariadb:11.6.2
     restart: always
     environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       MARIADB_DATABASE: ${DB_NAME}
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASSWORD}
@@ -83,6 +87,9 @@ services:
 
   base:
     platform: linux/amd64
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     build:
       context: .
       dockerfile: docker/Dockerfile.base
@@ -90,6 +97,9 @@ services:
 
   q_serve:
     platform: linux/amd64
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     build:
       context: .
       dockerfile: docker/QServe.Dockerfile
@@ -120,6 +130,8 @@ services:
     ports:
       - "5678:5678"
     environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       DEBUGPY: 0
       GEVENT_SUPPORT: True
     depends_on:
@@ -137,6 +149,8 @@ services:
       - base
       - q_serve
     environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       DEBUGPY: 0
       GEVENT_SUPPORT: True
     command: >
@@ -174,6 +188,8 @@ services:
     ports:
       - "5679:5679"
     environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       DEBUGPY: 0
       GEVENT_SUPPORT: True
     volumes:
@@ -191,6 +207,9 @@ services:
       default:
         aliases:
           - mediawiki
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     volumes:
       - mediawiki_html:/var/www/html
       - ./prerender:/var/www/html/prerender
@@ -211,6 +230,9 @@ services:
       - ./certs:/etc/letsencrypt/
       - ./certbot:/var/lib/letsencrypt
 #    entrypoint: ["sleep", "infinity"]  # Keeps the container running
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     entrypoint: >
       /bin/sh -c 
       "trap exit TERM; 
