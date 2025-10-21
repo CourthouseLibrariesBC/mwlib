@@ -49,6 +49,24 @@ def _init():
     _initialized = True
 
 
+def _join_chunks_to_str(chunks):
+    """Normalize captured output (bytes/str mix) to a single str."""
+    if not chunks:
+        return ""
+    try:
+        if isinstance(chunks[0], (bytes, bytearray)):
+            return b"".join(chunks).decode("utf-8", "replace")
+        return "".join(chunks)
+    except Exception:
+        parts = []
+        for c in chunks:
+            if isinstance(c, (bytes, bytearray)):
+                parts.append(c.decode("utf-8", "replace"))
+            else:
+                parts.append(str(c))
+        return "".join(parts)
+
+
 def run_cmd(args, timeout=None, cwd=None, env=None):
     """
     Return (exitcode, stdout_str). Ensures stdout is str even if collected as bytes.
@@ -109,19 +127,8 @@ def run_cmd(args, timeout=None, cwd=None, env=None):
         st = pid2status[pid].get()
         del pid2status[pid]
 
-        # --- FIX: handle bytes vs str safely ---
-        if chunks:
-            if isinstance(chunks[0], bytes):
-                try:
-                    stdout = b"".join(chunks).decode("utf-8", "replace")
-                except Exception:
-                    stdout = b"".join(chunks).decode(errors="replace")
-            else:
-                # All strings already
-                stdout = "".join(chunks)
-        else:
-            stdout = ""
-        return st, stdout
+        out = _join_chunks_to_str(chunks)
+        return st, out
     except Timeout as t:
         if t is not timeout:
             raise
