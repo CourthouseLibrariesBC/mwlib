@@ -1,9 +1,13 @@
 events {}
 
 http {
-  
+  include /etc/nginx/mime.types;
+  # optional default
+  default_type application/octet-stream;
+
   server {
     listen 80;
+    listen 8080; # Internal only
 #    server_name external.hostname;
     server_name localhost;
   
@@ -12,11 +16,19 @@ http {
 #    	return 301 https://$host$request_uri;
 #    }
     
+    root /var/www/html;
+    index index.php;
+
+    client_max_body_size 50M;
+
+    location ^~ /resources/  { try_files $uri =404; }
+    location ^~ /skins/      { try_files $uri =404; }
+    location ^~ /extensions/ { try_files $uri =404; }
+    location ^~ /images/     { try_files $uri =404; }
+
+    # Front controller for pretty URLs
     location / {
-      proxy_pass http://mediawiki/;
-      proxy_set_header Host $host;
-      proxy_set_header X-Forwarded-Proto https;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        try_files $uri $uri/ /index.php?$query_string;
     }
     
     location /cache/ {
@@ -26,11 +38,34 @@ http {
     	}
     }
     
-    client_max_body_size 100M;
-
     #    # Disable logging
     #    access_log /dev/null;
     #    error_log /dev/null crit;
+    
+    # PHP → FPM
+    location ~ \.php$ {
+      # Only execute real files
+      try_files $fastcgi_script_name =404;
+
+      # Support /index.php/some/path
+      fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+      include fastcgi_params;
+
+      # CRITICAL: map to the real file path that exists *inside the FPM container*
+      fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+      fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+      fastcgi_param PATH_INFO       $fastcgi_path_info;
+      fastcgi_param HTTP_PROXY      ""; # mitigate httpoxy
+
+      # Service name:port on your Docker network
+      fastcgi_pass mediawiki:9000;
+
+      # Optional tuning
+      # fastcgi_buffers 16 16k;
+      # fastcgi_buffer_size 32k;
+    }
+
   }
 
 #  server {
@@ -40,7 +75,7 @@ http {
 #    ssl_certificate     /etc/letsencrypt/live/dev.wiki.clicklaw.bc.ca/fullchain.pem;
 #    ssl_certificate_key /etc/letsencrypt/live/dev.wiki.clicklaw.bc.ca/privkey.pem;
 #
-#    client_max_body_size 100M;
+#    client_max_body_size 50M;
 #
 #    location / {
 #        proxy_pass http://mediawiki:80;
