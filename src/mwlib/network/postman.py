@@ -149,7 +149,7 @@ class Commands:
                     channel="makezip",
                     payload={"params": params},
                     jobid=jobid,
-                    timeout=60 * 60,
+                    timeout=120 * 60,
                 )
             finally:
                 greenlet_for_status.kill()
