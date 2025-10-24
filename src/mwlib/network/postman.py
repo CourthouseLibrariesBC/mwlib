@@ -143,12 +143,13 @@ class Commands:
                 self.proxy.get_client().port,
             )
 
+            # Hour timeout
             try:
                 self.qaddw(
                     channel="makezip",
                     payload={"params": params},
                     jobid=jobid,
-                    timeout=20 * 60,
+                    timeout=60 * 60,
                 )
             finally:
                 greenlet_for_status.kill()

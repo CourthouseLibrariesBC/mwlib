@@ -179,7 +179,7 @@ class Commands:
 
             logger.info(f"running {args!r}")
             try:
-                system(args, timeout=30 * 60.0) # Half an hour timeout
+                system(args, timeout=60 * 60.0) # Hour timeout
             except Exception as e:
                 logger.exception(f"Exception running mw-zip: {e}")
                 raise
@@ -235,7 +235,7 @@ class Commands:
             args.extend(_get_args(**params))
 
             logger.info(f"running {args!r}")
-            system(args, timeout=30 * 60.0) # Half an hour timeout
+            system(args, timeout=60 * 60.0) # Hour timeout
             os.chmod(outfile, 0o644)
             size = os.path.getsize(outfile)
             url = CACHE_URL + f"/{collection_id[:2]}/{collection_id}/{book_file}"
