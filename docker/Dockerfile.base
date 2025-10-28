@@ -14,8 +14,10 @@ RUN mkdir /app/src
 
 WORKDIR /app
 
-RUN pip install --upgrade pip==23.3.1
-RUN pip install pip-compile-multi==2.6.3
+RUN python -m pip install --upgrade \
+    "pip>=24.1" \
+    "pip-tools>=7.4.0" \
+    "pip-compile-multi>=2.6.3"
 
 COPY ./Makefile /app/
 COPY ./requirements /app/requirements
