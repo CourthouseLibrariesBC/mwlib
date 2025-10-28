@@ -210,7 +210,7 @@ class Commands:
                 channel="makezip",
                 payload={"params": params},
                 jobid=f"{collection_id}:makezip",
-                timeout=20 * 60,
+                timeout=120 * 60, # 2 hour timeout
             )
             
             mb = myjson.loads(metabook_data)
