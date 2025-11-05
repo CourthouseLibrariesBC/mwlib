@@ -40,6 +40,7 @@ services:
         #      - 8080:80
     volumes:
       - mediawiki_html:/var/www/html
+      - ./certbot-www:/var/www/certbot
         #      - ./mediawiki/webroot/extensions:/var/www/html/extensions
 #      - ./mediawiki/webroot/images:/var/www/html/images
       - ./mediawiki/defaults/LocalSettings.default:/var/www/html/defaults/LocalSettings.default
@@ -212,6 +213,7 @@ services:
       LC_ALL: C.UTF-8
     volumes:
       - mediawiki_html:/var/www/html
+      - ./certbot-www:/var/www/certbot
       - ./prerender:/var/www/html/prerender
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./certbot:/var/lib/letsencrypt
@@ -225,19 +227,18 @@ services:
 
   certbot:
     platform: linux/amd64
-    image: certbot/certbot
+    image: certbot/certbot:latest
     volumes:
+      - ./certbot-www:/var/www/certbot
       - ./certs:/etc/letsencrypt/
       - ./certbot:/var/lib/letsencrypt
+#    restart: unless-stopped
 #    entrypoint: ["sleep", "infinity"]  # Keeps the container running
-    environment:
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
     entrypoint: >
       /bin/sh -c 
       "trap exit TERM; 
       while :; do
-      certbot renew --webroot -w /var/lib/letsencrypt --quiet;
+      certbot renew --webroot -w /var/www/certbot --quiet;
       sleep 12h &
       wait $${!};
       done"

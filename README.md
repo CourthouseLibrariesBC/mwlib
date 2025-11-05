@@ -27,6 +27,8 @@ SMTP_AUTH=true
 SMTP_USER=admin@whatever.com
 SMTP_PASS=password
 GTM_ID=GTM-123456
+TURNSTILE_SITE_KEY=1234567
+TURNSTILE_SECRET_KEY=1234567
 ```
 
 The `PRODUCTION_SSH_HOST` and `DATA_IMPORT_USER` variables are used for copying live production data down to your docker during build. You will need to place SSH keys in `/mediawiki/keys/` and name them `id_docker_data` and `id_docker_data.pub`.
