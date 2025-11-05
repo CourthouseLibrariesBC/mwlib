@@ -1,6 +1,6 @@
 <?php
 
-$devLive = getenv("PUBLIC_HOSTNAME") == str_replace("console.", "", getenv("PRODUCTION_HOSTNAME")) ? "live" : "dev";
+$devLive = getenv("PUBLIC_HOSTNAME") == str_replace("console.", "", getenv("PRODUCTION_SSH_HOST")) ? "live" : "dev";
 
 #Do jobs realtime:
 $wgRunJobsAsync = false;
