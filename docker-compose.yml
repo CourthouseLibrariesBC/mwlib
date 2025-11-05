@@ -234,6 +234,9 @@ services:
       - ./certbot:/var/lib/letsencrypt
 #    restart: unless-stopped
 #    entrypoint: ["sleep", "infinity"]  # Keeps the container running
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     entrypoint: >
       /bin/sh -c 
       "trap exit TERM; 
