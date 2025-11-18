@@ -65,8 +65,11 @@ git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/W
 git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/ConfirmEdit
 git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/WikiEditor
 git clone --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/ParserFunctions
-git clone -b REL1_43 https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams.git CommentStreams
 
+# CommentStream extension requires this approach to get around a 500 server error
+curl -L -o CommentStreams-REL1_43.tar.gz https://github.com/CourthouseLibrariesBC/mediawiki-extensions-CommentStreams/archive/refs/heads/REL1_43.tar.gz
+tar -xzf CommentStreams-REL1_43.tar.gz
+mv mediawiki-extensions-CommentStreams-REL1_43 CommentStreams
 
 cp -R /app/Collection .
 

@@ -253,7 +253,6 @@ wfLoadExtensions(array(
     'Collection',
 	'HeadScript',
 	'ConfirmEdit', 
-    'ConfirmEdit/Turnstile',
     'WikiEditor',
 	//'Nuke', 		
     'ParserFunctions', 
@@ -371,7 +370,9 @@ $bwScriptsDirectory = 'scripts';
 
 // CloudFlare Turnstile + ConfirmEdit
 
-if ( getenv('TURNSTILE_SITE_KEY') !== false ) {
+if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
+  wfLoadExtension('ConfirmEdit/Turnstile');
+
   $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
 
   $wgTurnstileSiteKey= getenv('TURNSTILE_SITE_KEY');
@@ -385,7 +386,6 @@ if ( getenv('TURNSTILE_SITE_KEY') !== false ) {
   $wgCaptchaTriggers['badlogin']      = true;
   $wgCaptchaTriggers['badloginperuser'] = true;
 }
-
 
 // Google Tag Manager
 
