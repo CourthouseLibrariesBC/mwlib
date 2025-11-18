@@ -253,6 +253,7 @@ wfLoadExtensions(array(
     'Collection',
 	'HeadScript',
 	'ConfirmEdit', 
+    'ConfirmEdit/Turnstile',
     'WikiEditor',
 	//'Nuke', 		
     'ParserFunctions', 
@@ -365,6 +366,28 @@ $wgCollectionMWServeURL = 'http://job_dispatcher:8899/cache';
 $wgCollectionDisableDownloadSection = false;
 
 $bwScriptsDirectory = 'scripts';
+
+
+
+// CloudFlare Turnstile + ConfirmEdit
+
+if ( getenv('TURNSTILE_SITE_KEY') !== false ) {
+  $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
+
+  $wgTurnstileSiteKey= getenv('TURNSTILE_SITE_KEY');
+  $wgTurnstileSecretKey= getenv('TURNSTILE_SECRET_KEY');
+
+  $wgCaptchaTriggers['edit']          = true;
+  $wgCaptchaTriggers['create']        = true;
+  $wgCaptchaTriggers['sendemail']     = true;
+  $wgCaptchaTriggers['addurl']        = true;
+  $wgCaptchaTriggers['createaccount'] = true;
+  $wgCaptchaTriggers['badlogin']      = true;
+  $wgCaptchaTriggers['badloginperuser'] = true;
+}
+
+
+// Google Tag Manager
 
 //require_once( "$IP/extensions/GoogleTagManager/GoogleTagManager.php" );
 
