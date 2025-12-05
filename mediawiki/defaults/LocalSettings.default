@@ -374,22 +374,33 @@ $bwScriptsDirectory = 'scripts';
 
 // CloudFlare Turnstile + ConfirmEdit
 
-if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
-  wfLoadExtension('ConfirmEdit/Turnstile');
+wfLoadExtension('ConfirmEdit/Turnstile');
 
-  $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
+$wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
 
-  $wgTurnstileSiteKey= getenv('TURNSTILE_SITE_KEY');
-  $wgTurnstileSecretKey= getenv('TURNSTILE_SECRET_KEY');
+$wgTurnstileSiteKey = getenv('TURNSTILE_SITE_KEY');
+$wgTurnstileSecretKey = getenv('TURNSTILE_SECRET_KEY');
 
-  $wgCaptchaTriggers['edit']          = true;
-  $wgCaptchaTriggers['create']        = true;
-  $wgCaptchaTriggers['sendemail']     = true;
-  $wgCaptchaTriggers['addurl']        = true;
-  $wgCaptchaTriggers['createaccount'] = true;
-  $wgCaptchaTriggers['badlogin']      = true;
-  $wgCaptchaTriggers['badloginperuser'] = true;
-}
+error_log(
+    'Turnstile debug: site=' . $wgTurnstileSiteKey .
+    ', secret=' . ( isset( $wgTurnstileSecretKey ) && $wgTurnstileSecretKey !== '' ? 'yes' : 'no' )
+);
+
+$wgCaptchaTriggers['edit']          = true;
+$wgCaptchaTriggers['create']        = true;
+$wgCaptchaTriggers['sendemail']     = true;
+$wgCaptchaTriggers['addurl']        = true;
+$wgCaptchaTriggers['createaccount'] = true;
+$wgCaptchaTriggers['badlogin']      = true;
+$wgCaptchaTriggers['badloginperuser'] = true;
+
+// Force captchas for everyone while we debug
+$wgGroupPermissions['*']['skipcaptcha']             = false;
+$wgGroupPermissions['user']['skipcaptcha']          = false;
+$wgGroupPermissions['autoconfirmed']['skipcaptcha'] = false;
+$wgGroupPermissions['emailconfirmed']['skipcaptcha'] = false;
+$wgGroupPermissions['sysop']['skipcaptcha']         = false;
+
 
 // Google Tag Manager
 
@@ -532,7 +543,7 @@ $wgArticleFeedbackDashboard = true;
 
 
 # Added June 19 2013 by Nate to let confirmed accounts with email post URLs without math capture
-$wgGroupPermissions['user']['skipcaptcha'] = true;
+#$wgGroupPermissions['user']['skipcaptcha'] = true;
 $wgCaptchaTriggers['edit'] = true;
 
 
