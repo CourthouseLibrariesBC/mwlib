@@ -133,9 +133,13 @@ $wgSessionCacheType = CACHE_DB;
 
 
 # Disable caching ##
-$wgMainCacheType    = CACHE_NONE;
-$wgMessageCacheType = CACHE_NONE;
-$wgParserCacheType = CACHE_NONE;						 
+#$wgMainCacheType    = CACHE_NONE;
+#$wgMessageCacheType = CACHE_NONE;
+#$wgParserCacheType = CACHE_NONE;						 
+
+$wgMainCacheType    = CACHE_ACCEL;
+$wgMessageCacheType = CACHE_ANYTHING;
+$wgParserCacheType = CACHE_DB;
 
 $wgUseCdn = false;
 $wgUseCdnCache = false;
