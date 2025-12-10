@@ -86,10 +86,8 @@ except ImportError:
 check_reportlab()
 
 
-logging.basicConfig(level=logging.INFO)
-#log = logging.getLogger("rlwriter")
-log = logging.getLogger("mwlib.serve")
-log.propagate = True
+log = logging.getLogger("rlwriter")
+
 
 class ReportlabError(Exception):
     def __init__(self, value):
@@ -578,40 +576,12 @@ class RlWriter:
 
         log.info("start rendering: %r" % output)
 
-        # --- ADD THIS BLOCK ---
-        log.info(
-            "TOC preferences: RENDER_TOC=%r, numarticles=%r, writer_options=%r",
-            getattr(pdfstyles, "RENDER_TOC", None),
-            getattr(self, "numarticles", None),
-            getattr(self, "writer_options", None),
-        )
-        # --- END ADDITION ---
-
         try:
             gc.collect()
             if linuxmem:
                 log.info("memory usage after laying out: %s", linuxmem.memory())
             self.doc.build(elements)
-
-            # Pre-check: is the base PDF present and with size?
-            try:
-                exists_before = os.path.exists(output)
-                size_before = os.path.getsize(output) if exists_before else -1
-                log.debug("PDF before TOC: exists=%r size=%d path=%r", exists_before, size_before, output)
-            except Exception as e:
-                log.debug("PDF existence check before TOC failed: %s", e)
-
-            log.debug(
-                "TOC gate: RENDER_TOC=%r, numarticles=%d, toc_entries=%d, has_title_page=%r, rtl=%r",
-                getattr(pdfstyles, "RENDER_TOC", None),
-                getattr(self, "numarticles", None),
-                len(self.toc_entries),
-                bool(getattr(self.book, "title", "")),
-                getattr(self, "rtl", None),
-            )
-
             if pdfstyles.RENDER_TOC and self.numarticles > 1:
-                log.info("TOC: invoking TocRenderer.build with %d entries", len(self.toc_entries))
                 err = self.toc_renderer.build(
                     output,
                     self.toc_entries,
@@ -619,25 +589,9 @@ class RlWriter:
                     rtl=self.rtl,
                 )
                 if err:
-                    log.error("TOC build failed, returncode=%s", err)
-                else:
-                    log.info("TOC build completed successfully")
-            else:
-                reasons = []
-                if not pdfstyles.RENDER_TOC:
-                    reasons.append("RENDER_TOC=False")
-                if not (self.numarticles > 1):
-                    reasons.append(f"numarticles={self.numarticles} <= 1")
-                log.info("TOC skipped: %s", ", ".join(reasons) or "unknown reason")
-
-            # Post-check: did the PDF change after TOC?
-            try:
-                exists_after = os.path.exists(output)
-                size_after = os.path.getsize(output) if exists_after else -1
-                log.debug("PDF after TOC: exists=%r size=%d path=%r", exists_after, size_after, output)
-            except Exception as e:
-                log.debug("PDF existence check after TOC failed: %s", e)
-
+                    log.warning(
+                        f"TOC not rendered. Probably pdftk is not properly installed. returncode: {err}"
+                    )
             if linuxmem:
                 log.info("memory usage after reportlab rendering: %s", linuxmem.memory())
         except:
@@ -683,10 +637,6 @@ class RlWriter:
 
     def toc_callback(self, info):
         self.toc_entries.append(info)
-        try:
-            log.debug("TOC entry added: %s", info)
-        except Exception:
-            log.debug("TOC entry added (repr): %r", info)
 
     def writeTitlePage(self, coverimage=None):
         # FIXME: clean this up. there seems to be quite a bit of deprecated here

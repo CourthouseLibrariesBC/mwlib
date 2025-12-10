@@ -15,5 +15,5 @@ class Colors:
 logging.basicConfig(
     format=f"%(asctime)-15s %(levelname)s {Colors.OKBLUE}%(name)s{Colors.ENDC}: %(message)s"
 )
-root_logger = logging.getLogger("mwlib.serve")
+root_logger = logging.getLogger()
 root_logger.setLevel("DEBUG")

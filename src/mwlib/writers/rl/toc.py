@@ -3,9 +3,6 @@
 # Copyright (c) 2007, 2008, 2009 PediaPress GmbH
 # See README.txt for additional licensing information.
 
-import logging
-log = logging.getLogger("mwlib.serve")
-
 import os
 import shutil
 import subprocess
@@ -126,33 +123,12 @@ class TocRenderer:
 
     def run_cmd(self, cmd):
         try:
-            log.info("TOC cmd: %r", cmd)
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = proc.communicate()
-            rc = proc.returncode
-            # Basic metrics
-            log.info("TOC rc=%d, stdout_len=%d, stderr_len=%d", rc, len(out or b""), len(err or b""))
-            # Detailed output (debug-level to avoid noise)
-            if out:
-                try:
-                    log.debug("TOC stdout:\n%s", out.decode("utf-8", "replace"))
-                except Exception:
-                    log.debug("TOC stdout (bytes): %r", out)
-            if err:
-                try:
-                    log.debug("TOC stderr:\n%s", err.decode("utf-8", "replace"))
-                except Exception:
-                    log.debug("TOC stderr (bytes): %r", err)
-            return rc
-        except OSError as e:
-            log.error("TOC command failed to start: %s", e)
-            return 1
+            retcode = subprocess.call(cmd, stdout=subprocess.PIPE)
+        except OSError:
+            retcode = 1
+        return retcode
 
     def pdftk(self, pdfpath, tocpath, finalpath, has_title_page):
-        if shutil.which("pdftk") is None:
-            log.error("pdftk not found in PATH")
-            return 1
-        
         cmd = [
             "pdftk",
             "A=%s" % pdfpath,
@@ -194,4 +170,3 @@ class TocRenderer:
         if os.path.exists(tocpath):
             os.unlink(tocpath)
         return retcode
-

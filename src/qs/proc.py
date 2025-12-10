@@ -10,8 +10,7 @@ from gevent import Timeout, core, event, socket, version_info
 
 from qs.log import root_logger
 
-# logger = root_logger.getChild(__name__)
-logger = root_logger#.getLogger("mwlib.serve")
+logger = root_logger.getChild(__name__)
 
 if version_info[:2] >= (1, 0):
     from gevent import get_hub
@@ -78,13 +77,6 @@ def run_cmd(args, timeout=None, cwd=None, env=None):
         if isinstance(x, str):
             args[i] = x.encode("utf-8")
 
-    try:
-        # Decode for logging only; keep bytes for exec
-        log_args = [x.decode("utf-8", "replace") if isinstance(x, (bytes, bytearray)) else x for x in args]
-    except Exception:
-        log_args = args
-    logger.info("proc.run_cmd start: %r", log_args)
-
     sp = socket.socketpair()
     pid = os.fork()
     if pid == 0:
@@ -131,26 +123,11 @@ def run_cmd(args, timeout=None, cwd=None, env=None):
             if not chunk:
                 break
             chunks.append(chunk)
-            # Stream live to stdout so Docker captures output immediately
-            try:
-                sys.stdout.buffer.write(chunk)
-                sys.stdout.flush()
-            except Exception:
-                # Fallback for environments without buffer attr
-                try:
-                    sys.stdout.write(chunk.decode("utf-8", "replace"))
-                    sys.stdout.flush()
-                except Exception:
-                    pass
 
         st = pid2status[pid].get()
         del pid2status[pid]
 
         out = _join_chunks_to_str(chunks)
-        try:
-            logger.info("proc.run_cmd done: status=%s, bytes=%d", st, sum(len(c) for c in chunks))
-        except Exception:
-            logger.info("proc.run_cmd done: status=%s", st)
         return st, out
     except Timeout as t:
         if t is not timeout:
@@ -163,8 +140,4 @@ def run_cmd(args, timeout=None, cwd=None, env=None):
     with Timeout(1):
         st = pid2status[pid].get()
         del pid2status[pid]
-        try:
-            logger.warning("proc.run_cmd timeout kill: status=%s, bytes=%d", st, sum(len(c) for c in chunks))
-        except Exception:
-            logger.warning("proc.run_cmd timeout kill: status=%s", st)
         return st, "".join(chunks)
