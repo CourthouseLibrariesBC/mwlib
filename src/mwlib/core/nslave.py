@@ -56,24 +56,30 @@ def get_collection_dir(collection_id):
 
 def system(args, timeout=None):
     stime = time.time()
+
     retcode, stdout = proc.run_cmd(args, timeout=timeout)
+
     d = time.time() - stime
 
     pub_args = garble_password(args)
-    summary = f"{retcode} {d} {pub_args!r}"
+    msg = []
+    a = msg.append
+    a(f"{retcode} {d} {pub_args!r}\n")
+
+    def writemsg():
+        return sys.stderr.write("".join(msg))
 
     if retcode != 0:
-        # Error: log summary and full output, then raise
-        logger.error("%s\n%s\n====================", summary, stdout)
+        a(stdout)
+        a("\n====================\n")
+
+        writemsg()
         lines = "\n".join(["    " + x for x in stdout[-4096:].split("\n")])
         raise RuntimeError(
             f"command failed with returncode {retcode}: {pub_args!r}\nLast Output:\n{lines}\n"
         )
 
-    # Success: log summary and stdout as info
-    logger.info(summary)
-    if stdout:
-        logger.info("stdout:\n%s", stdout)
+    writemsg()
 
 
 def _get_args(
@@ -256,6 +262,7 @@ def start_serving_files(cachedir, address, port):
     s.start()
     return s
 
+
 def make_cachedir(cachedir):
     if not os.path.isdir(cachedir):
         os.makedirs(cachedir)
@@ -324,12 +331,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import logging, sys
-    root = logging.getLogger()
-    root.handlers[:] = []
-    h = logging.StreamHandler(sys.stdout)
-    h.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(name)s: %(message)s'))
-    root.addHandler(h)
-    root.setLevel(logging.INFO)
-
     main()
