@@ -374,33 +374,38 @@ $bwScriptsDirectory = 'scripts';
 
 // CloudFlare Turnstile + ConfirmEdit
 
-wfLoadExtension('ConfirmEdit/Turnstile');
+if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
+  wfLoadExtension('ConfirmEdit/Turnstile');
 
-$wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
+  #$wgCaptchaClass = "SimpleCaptcha";
+  $wgCaptchaClass = MediaWiki\Extension\ConfirmEdit\Turnstile\Turnstile::class;
 
-$wgTurnstileSiteKey = getenv('TURNSTILE_SITE_KEY');
-$wgTurnstileSecretKey = getenv('TURNSTILE_SECRET_KEY');
+  $wgTurnstileSiteKey = getenv('TURNSTILE_SITE_KEY');
+  $wgTurnstileSecretKey = getenv('TURNSTILE_SECRET_KEY');
 
-error_log(
-    'Turnstile debug: site=' . $wgTurnstileSiteKey .
-    ', secret=' . ( isset( $wgTurnstileSecretKey ) && $wgTurnstileSecretKey !== '' ? 'yes' : 'no' )
-);
+  error_log(
+      'Turnstile debug: site=' . $wgTurnstileSiteKey .
+      ', secret=' . ( isset( $wgTurnstileSecretKey ) && $wgTurnstileSecretKey !== '' ? 'yes' : 'no' )
+  );
 
-$wgCaptchaTriggers['edit']          = true;
-$wgCaptchaTriggers['create']        = true;
-$wgCaptchaTriggers['sendemail']     = true;
-$wgCaptchaTriggers['addurl']        = true;
-$wgCaptchaTriggers['createaccount'] = true;
-$wgCaptchaTriggers['badlogin']      = true;
-$wgCaptchaTriggers['badloginperuser'] = true;
+  $wgCaptchaTriggers['edit']          = true;
+  $wgCaptchaTriggers['create']        = true;
+  $wgCaptchaTriggers['sendemail']     = true;
+  $wgCaptchaTriggers['addurl']        = true;
+  $wgCaptchaTriggers['createaccount'] = true;
+  $wgCaptchaTriggers['badlogin']      = true;
+  $wgCaptchaTriggers['badloginperuser'] = true;
 
-// Force captchas for everyone while we debug
-$wgGroupPermissions['*']['skipcaptcha']             = false;
-$wgGroupPermissions['user']['skipcaptcha']          = false;
-$wgGroupPermissions['autoconfirmed']['skipcaptcha'] = false;
-$wgGroupPermissions['emailconfirmed']['skipcaptcha'] = false;
-$wgGroupPermissions['sysop']['skipcaptcha']         = false;
+  $wgCaptchaBadLoginAttempts = 1;            // per IP/global
+  $wgCaptchaBadLoginPerUserAttempts = 1;     // per-user threshold
 
+  // Force captchas for everyone while we debug
+  $wgGroupPermissions['*']['skipcaptcha']             = false;
+  $wgGroupPermissions['user']['skipcaptcha']          = false;
+  $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = false;
+  $wgGroupPermissions['emailconfirmed']['skipcaptcha'] = false;
+  $wgGroupPermissions['sysop']['skipcaptcha']         = false;
+}
 
 // Google Tag Manager
 
