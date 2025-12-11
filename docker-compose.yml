@@ -137,7 +137,7 @@ services:
     environment:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      DEBUGPY: 1 
+      DEBUGPY: 0
       GEVENT_SUPPORT: True
     depends_on:
       - base
@@ -156,7 +156,7 @@ services:
     environment:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      DEBUGPY: 1
+      DEBUGPY: 0
       GEVENT_SUPPORT: True
     command: >
       python
@@ -195,7 +195,7 @@ services:
     environment:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      DEBUGPY: 1
+      DEBUGPY: 0
       GEVENT_SUPPORT: True
     volumes:
       - ./cache:/app/cache
