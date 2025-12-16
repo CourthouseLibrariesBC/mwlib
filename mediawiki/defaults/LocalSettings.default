@@ -405,6 +405,9 @@ if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
   $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = false;
   $wgGroupPermissions['emailconfirmed']['skipcaptcha'] = false;
   $wgGroupPermissions['sysop']['skipcaptcha']         = false;
+  
+  // Required to hide the captcha label
+  $wgAllowSiteCSSOnRestrictedPages = true;
 }
 
 // Google Tag Manager
