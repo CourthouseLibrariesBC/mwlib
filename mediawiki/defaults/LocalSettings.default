@@ -408,6 +408,9 @@ if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
   
   // Required to hide the captcha label
   $wgAllowSiteCSSOnRestrictedPages = true;
+
+  // To test Turnstile, switch it from "invisible" to "managed" in the CloudFlase console.
+  // It will appear visibly on the page and require user interaction.
 }
 
 // Google Tag Manager
