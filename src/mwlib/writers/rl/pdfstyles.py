@@ -415,6 +415,7 @@ class BaseHeadingStyle(ParagraphStyle):
         self.backcolor = None
         self.wordWrap = None
         self.textTransform = None
+        self.flowable = False
 
 
 def heading_style(mode="Chapter", lvl=1, text_align=None):

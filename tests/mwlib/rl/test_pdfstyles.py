@@ -219,6 +219,7 @@ def test_base_heading_style():
     assert style.backcolor is None
     assert style.wordWrap is None
     assert style.textTransform is None
+    assert hasattr(style, "flowable") and style.flowable is False
 
 
 def test_heading_style_default_parameters():
@@ -228,6 +229,7 @@ def test_heading_style_default_parameters():
     assert style.name == "heading_style_chapter_1"
     assert style.fontName == SERIF_FONT
     assert style.prevent_post_pagebreak is True
+    assert hasattr(style, "flowable") and style.flowable is False
 
 
 def test_heading_style_modes():
