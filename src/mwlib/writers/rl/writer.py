@@ -1570,6 +1570,13 @@ class RlWriter:
         return ["".join(txt)]  # FIXME use writelink to generate clickable-link
 
     def svg2png(self, img_path):
+        if not img_path:
+            return ""
+
+        if not shutil.which("convert"):
+            log.warning("ImageMagick 'convert' not found; cannot convert svg: %r", img_path)
+            return ""
+
         cmd = [
             "convert",
             img_path,
@@ -1588,31 +1595,65 @@ class RlWriter:
                 )
                 return ""
             return f"{img_path}.png"
-        except OSError:
-            log.warning("img could not be converted. cmd failed: %s", repr(cmd))
+        except Exception:
+            log.exception("img could not be converted: %r", cmd)
             return ""
 
     def getImgPath(self, target):
         log.info("getImgPath target: %s", target)
-        if self.img_db:
+        if not self.img_db:
+            return ""
+
+        try:
             img_path = self.img_db.get_disk_path(
                 target, size=800
             )  # FIXME: width should be obsolete now
-            if img_path and img_path.lower().endswith("svg"):
+        except Exception:
+            log.exception("image db get_disk_path failed for target=%r", target)
+            return ""
+
+        if not img_path:
+            return ""
+
+        try:
+            if isinstance(img_path, bytes):
+                img_path = img_path.decode("utf-8", errors="replace")
+        except Exception:
+            log.exception("failed normalizing image path type for target=%r", target)
+            return ""
+
+        try:
+            if img_path.lower().endswith("svg"):
                 img_path = self.svg2png(img_path)
-            if img_path:
-                img_path = img_path.encode("utf-8")
-                self.tmp_images.add(img_path)
-            if not self.license_checker.display_image(target):
-                if self.debug:
+        except Exception:
+            log.exception("svg conversion failed for target=%r path=%r", target, img_path)
+            return ""
+
+        if not img_path:
+            return ""
+
+        try:
+            self.tmp_images.add(img_path)
+        except Exception:
+            # tmp_images is best-effort; never fail rendering because of it
+            log.exception("failed tracking tmp image for target=%r path=%r", target, img_path)
+
+        try:
+            display_ok = self.license_checker.display_image(target)
+        except Exception:
+            log.exception("license check failed for target=%r (defaulting to display)", target)
+            display_ok = True
+
+        if not display_ok:
+            if self.debug:
+                with contextlib.suppress(Exception):
                     log.info(
-                        "filtering image",
+                        "filtering image %r (%s)",
                         target,
                         self.license_checker.get_license_display_name(target),
                     )
-                return None
-        else:
-            img_path = ""
+            return None
+
         return img_path
 
     def _execute_image_conversion_commands(self, cmds, img_path):
@@ -1624,9 +1665,9 @@ class RlWriter:
                         f"converting broken image failed (return code: {ret}): {img_path}"
                     )
                     return ret
-            except OSError:
-                log.warning(f"converting broken image failed (OSError): {img_path}")
-                raise
+            except Exception:
+                log.exception("converting broken image failed: %r (path=%r)", cmd, img_path)
+                return -1
 
     def _fix_broken_images(self, _, img_path):
         if img_path in self.fixed_images:
@@ -1635,8 +1676,8 @@ class RlWriter:
 
         try:
             img = PilImage.open(img_path)
-        except OSError:
-            log.warning("image can not be opened by PIL: %r" % img_path)
+        except Exception:
+            log.exception("image can not be opened by PIL: %r", img_path)
             return -1
         if not isinstance(img.info.get("transparency", 0), int):
             log.warning("image contains invalid transparency info - skipping")
@@ -1695,11 +1736,8 @@ class RlWriter:
             )
 
         self._execute_image_conversion_commands(cmds, img_path)
-        try:
+        with contextlib.suppress(Exception):
             del img
-        except:
-            log.warning("image can not be opened by PIL: %r" % img_path)
-            raise
         self.fixed_images[img_path] = 0
         return 0
 
@@ -1774,27 +1812,46 @@ class RlWriter:
                 items.extend(self.write(node))
             return items
 
-        img_path = self.getImgPath(img_node.target)
+        try:
+            img_path = self.getImgPath(img_node.target)
+        except Exception:
+            log.exception("getImgPath failed for image target=%r", getattr(img_node, "target", None))
+            return []
 
         if not img_path:
             return self._handle_invalid_image_url(img_node)
+
+        if isinstance(img_path, bytes):
+            # Defensive: should not happen after getImgPath normalization
+            img_path = img_path.decode("utf-8", errors="replace")
 
         try:
             ret = self._fix_broken_images(img_node, img_path)
             if ret != 0:
                 return []
         except Exception:
-            traceback.print_exc()
-            log.warning("image skipped")
+            log.exception("image conversion/cleanup failed; skipping image target=%r path=%r", img_node.target, img_path)
             return []
 
         max_width, max_height = self._calculate_image_dimensions(img_node)
 
-        self.set_svg_default_size(img_node)
+        with contextlib.suppress(Exception):
+            self.set_svg_default_size(img_node)
 
-        width, height = self.image_utils.get_image_size(
-            img_node, img_path, max_print_width=max_width, max_print_height=max_height
-        )
+        try:
+            width, height = self.image_utils.get_image_size(
+                img_node,
+                img_path,
+                max_print_width=max_width,
+                max_print_height=max_height,
+            )
+        except Exception:
+            log.exception("failed computing image size; skipping image target=%r path=%r", img_node.target, img_path)
+            return []
+
+        if not width or not height:
+            log.warning("image has invalid size; skipping image target=%r path=%r", img_node.target, img_path)
+            return []
 
         align = self._determine_image_alignment(img_node)
         txt = []
@@ -1825,7 +1882,7 @@ class RlWriter:
 
         if is_inline:
             txt = '{linkstart}<img src="{src}" width="{width:f}pt" height="{height:f}pt" valign="{align}"/>{linkend}'.format(
-                src=str(img_path, "utf-8"),
+                src=img_path,
                 width=width,
                 height=height,
                 align="bottom",
@@ -1834,18 +1891,22 @@ class RlWriter:
             )
             return [txt]
         caption_txt = "".join(txt)
-        figure = Figure(
-            img_path,
-            caption_txt=caption_txt,
-            caption_style=text_style("figure", in_table=self.table_nesting),
-            img_width=width,
-            img_height=height,
-            margin=(0.2 * cm, 0.2 * cm, 0.2 * cm, 0.2 * cm),
-            padding=(0.2 * cm, 0.2 * cm, 0.2 * cm, 0.2 * cm),
-            border_color=pdfstyles.IMG_BORDER_COLOR,
-            align=align,
-            url=url,
-        )
+        try:
+            figure = Figure(
+                img_path,
+                caption_txt=caption_txt,
+                caption_style=text_style("figure", in_table=self.table_nesting),
+                img_width=width,
+                img_height=height,
+                margin=(0.2 * cm, 0.2 * cm, 0.2 * cm, 0.2 * cm),
+                padding=(0.2 * cm, 0.2 * cm, 0.2 * cm, 0.2 * cm),
+                border_color=pdfstyles.IMG_BORDER_COLOR,
+                align=align,
+                url=url,
+            )
+        except Exception:
+            log.exception("failed creating PDF image flowable; skipping image target=%r path=%r", img_node.target, img_path)
+            return []
         figure.float_figure = img_node.align not in ["center", "none"]
         return [figure]
 

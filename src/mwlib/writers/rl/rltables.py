@@ -22,16 +22,25 @@ def scale_images(data):
         for cell in row:
             for i, element in enumerate(cell):
                 if isinstance(element, Figure):  # scale image to half size
-                    cell[i] = Figure(
-                        imgFile=element.img_path,
-                        captionTxt=element.captionTxt,
-                        captionStyle=element.cs,
-                        imgWidth=element.imgWidth / 2.0,
-                        imgHeight=element.imgHeight / 2.0,
-                        margin=element.margin,
-                        padding=element.padding,
-                        align=element.align,
-                    )
+                    try:
+                        cell[i] = Figure(
+                            element.img_path,
+                            caption_txt=getattr(element, "caption_txt", ""),
+                            caption_style=getattr(element, "caption_style", None),
+                            img_width=getattr(element, "img_width", None) / 2.0
+                            if getattr(element, "img_width", None)
+                            else None,
+                            img_height=getattr(element, "img_height", None) / 2.0
+                            if getattr(element, "img_height", None)
+                            else None,
+                            margin=getattr(element, "margin", (0, 0, 0, 0)),
+                            padding=getattr(element, "padding", (0, 0, 0, 0)),
+                            align=getattr(element, "align", None),
+                            border_color=getattr(element, "border_color", (0.75, 0.75, 0.75)),
+                            url=getattr(element, "url", None),
+                        )
+                    except Exception:
+                        log.exception("failed scaling image in table; leaving original")
 
 
 def get_remaining_space(avail_width, summedwidths, minwidths, recursion_depth, data, table, nesting_level):
