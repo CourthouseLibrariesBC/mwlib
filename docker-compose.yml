@@ -224,7 +224,7 @@ services:
       - ./certs:/etc/letsencrypt/
       - ./cache:/app/cache
     expose:  
-      - "8080:80"
+      - "80"
     ports:
       - "80:80"
       - "443:443"

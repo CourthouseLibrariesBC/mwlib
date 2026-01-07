@@ -8,11 +8,11 @@ escape_sed() {
 }
 
 # If the init script has already run, start apache
-if [[ -e /.mediawiki-initialized ]]; then
-  php-fpm
-#  apache2-foreground
-  exit
-fi
+#if [[ -e /.mediawiki-initialized ]]; then
+#  php-fpm
+##  apache2-foreground
+#  exit
+#fi
 
 # Else install all the things.
 
@@ -182,7 +182,7 @@ error_log = '/var/log/php_errors.log'" > /usr/local/etc/php/php.ini
 #EOF
 
 echo "Initialization complete..."
-touch /.mediawiki-initialized
+#touch /.mediawiki-initialized
 
 echo "Updating database..."
 php maintenance/update.php
