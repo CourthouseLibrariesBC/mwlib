@@ -8,11 +8,11 @@ escape_sed() {
 }
 
 # If the init script has already run, start apache
-#if [[ -e /.mediawiki-initialized ]]; then
-#  php-fpm
-##  apache2-foreground
-#  exit
-#fi
+if [[ -e /.mediawiki-initialized ]]; then
+  php-fpm
+#  apache2-foreground
+  exit
+fi
 
 # Else install all the things.
 
