@@ -5,7 +5,9 @@ set -euo pipefail
 # Config
 # ===============================================================
 
-BASE_URL="https://dev.wiki.clicklaw.bc.ca"
+source ../.env
+
+BASE_URL="https://$PUBLIC_HOSTNAME"
 CATEGORY_URL="$BASE_URL/index.php?title=Category:Books"
 USER_AGENT="ClicklawBookFetcher/2.1"
 
