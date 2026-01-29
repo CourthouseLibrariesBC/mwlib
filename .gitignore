@@ -8,6 +8,7 @@
 .vscode*
 /cache
 certs/*
+certbot-www/*
 mediawiki/keys
 *.so
 *.o

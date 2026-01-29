@@ -26,6 +26,12 @@ http {
     location ^~ /extensions/ { try_files $uri =404; }
     location ^~ /images/     { try_files $uri =404; }
 
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+        try_files $uri =404;
+    }
+
     # Front controller for pretty URLs
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -76,6 +82,12 @@ http {
 #    ssl_certificate_key /etc/letsencrypt/live/dev.wiki.clicklaw.bc.ca/privkey.pem;
 #
 #    client_max_body_size 50M;
+#
+#    location ^~ /.well-known/acme-challenge/ {
+#        root /var/www/certbot;
+#        default_type "text/plain";
+#        try_files $uri =404;
+#    }
 #
 #    location / {
 #        proxy_pass http://mediawiki:80;
