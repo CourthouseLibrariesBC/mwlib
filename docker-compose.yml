@@ -124,7 +124,7 @@ services:
       --cachedir /app/cache
       --host q_serve
       --port 8090
-      --numprocs 2
+      --numprocs 1
       -c makezip
       # nslave 
       # --cachedir /app/cache 
@@ -160,7 +160,8 @@ services:
       GEVENT_SUPPORT: True
     command: >
       python
-      -u -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5680 -m mwlib.core.nserve q_serve:8090
+      -u -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5680 
+      -m mwlib.core.nserve q_serve:8090
     expose:
       - "8899"
     ports:
@@ -180,7 +181,7 @@ services:
       --cachedir /app/cache
       --host q_serve
       --port 8090
-      --numprocs 2
+      --numprocs 1
       --url http://render_worker:9123/cache
       -c render
       # nslave
@@ -232,6 +233,7 @@ services:
   certbot:
     platform: linux/amd64
     image: certbot/certbot:latest
+    profiles: ["manual"]
     volumes:
       - ./certbot-www:/var/www/certbot
       - ./certs:/etc/letsencrypt/
@@ -241,14 +243,15 @@ services:
     environment:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-    entrypoint: >
-      /bin/sh -c 
-      "trap exit TERM; 
-      while :; do
-      certbot renew --webroot -w /var/www/certbot --quiet;
-      sleep 12h &
-      wait $${!};
-      done"
+    command: renew
+        #    entrypoint: >
+        #      /bin/sh -c 
+        #      "trap exit TERM; 
+        #      while :; do
+        #      certbot renew --webroot -w /var/www/certbot --quiet;
+        #      sleep 12h &
+        #      wait $${!};
+        #      done"
 
 
 volumes:
