@@ -26,6 +26,9 @@ http {
     location ^~ /extensions/ { try_files $uri =404; }
     location ^~ /images/     { try_files $uri =404; }
 
+    # Certificate autorenewal
+    # add to cron:
+    # docker compose run --rm certbot renew --deploy-hook "docker compose exec -T nginx nginx -s reload" --disable-hook-validation
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/certbot;
         default_type "text/plain";
@@ -83,6 +86,9 @@ http {
 #
 #    client_max_body_size 50M;
 #
+#    # Certificate autorenewal
+#    # add to cron:
+#    # docker compose run --rm certbot renew --deploy-hook "docker compose exec -T nginx nginx -s reload" --disable-hook-validation
 #    location ^~ /.well-known/acme-challenge/ {
 #        root /var/www/certbot;
 #        default_type "text/plain";
