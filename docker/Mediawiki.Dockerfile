@@ -38,8 +38,10 @@ WORKDIR /var/www/html
 COPY composer.local.json /var/www/html/composer.local.json
 
 # install (honors composer.lock + composer.local.json)
-RUN composer install --no-dev --prefer-dist --no-interaction --no-progress \
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-security-blocking \
  && rm -rf /tmp/composer
+#RUN composer install --no-dev --prefer-dist --no-interaction --no-progress \
+# && rm -rf /tmp/composer
 
 RUN ssh-keyscan -H -t ed25519 $PRODUCTION_SSH_HOST > /tmp/known_hosts
 #RUN ssh -vvv -i /app/.ssh/id_docker_data  $DATA_IMPORT_USER@$PRODUCTION_SSH_HOST
