@@ -400,8 +400,12 @@ if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
   $wgCaptchaBadLoginPerUserAttempts = 1;     // per-user threshold
 
   // Force captchas for everyone while we debug
+  // NOTE: Revoked from sysop/autoconfirmed only — user group retains skipcaptcha
+  // so that programmatic page saves (e.g. Collection book saves via PageUpdater)
+  // are not blocked by CAPTCHA. If Turnstile support is needed for logged-in users
+  // too, the $wgGroupPermissions['user']['skipcaptcha'] line below can be removed.
   $wgGroupPermissions['*']['skipcaptcha']             = false;
-  $wgGroupPermissions['user']['skipcaptcha']          = false;
+  //$wgGroupPermissions['user']['skipcaptcha']          = false;  // keep enabled so Collection book saves work
   $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = false;
   $wgGroupPermissions['emailconfirmed']['skipcaptcha'] = false;
   $wgGroupPermissions['sysop']['skipcaptcha']         = false;
