@@ -2,7 +2,11 @@
 # monkeypatch here and then call into the respective main function
 from gevent import monkey
 
-monkey.patch_all()
+# ssl=False: Python 3.11's SSLContext.minimum_version setter recurses
+# infinitely when gevent patches ssl. nginx handles TLS termination so
+# nserve/nslave never need gevent-patched SSL for incoming connections;
+# outgoing HTTPS (e.g. requests to pediapress) uses unpatched ssl fine.
+monkey.patch_all(ssl=False)
 
 from mwlib.apps.buildzip import main as buildzip_main_func  # noqa: E402
 from mwlib.apps.render import main as render_main_func  # noqa: E402

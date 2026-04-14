@@ -30,7 +30,7 @@ log = logging.getLogger("mwlib.serve")
 MAX_CONTENT_LENGTH = None
 
 if __name__ == "__main__":
-    gevent.monkey.patch_all()
+    gevent.monkey.patch_all(ssl=False)
 
 
 class Bunch:
@@ -241,6 +241,7 @@ class Application:
             raise HTTPResponse("no command given", status=400)
 
         log.info(vars(http_request.params))
+        print(f"DEBUG dispatch: command={command!r} collection_id={http_request.params.get('collection_id')!r} params={dict(http_request.params)!r}", flush=True)
         try:
             method = getattr(self, "do_%s" % command)
         except AttributeError:
@@ -405,6 +406,7 @@ class Application:
         jobid = f"{collection_id}:render-{writer}"
 
         res = self.qserve.qinfo(jobid=jobid) or {}
+        print(f"DEBUG render_status: jobid={jobid!r} res={res!r}", flush=True)
         info = res.get("info", {})
         done = res.get("done", False)
         error = res.get("error", None)
@@ -440,23 +442,23 @@ class Application:
         download_url = res["result"]["url"]
 
         print("fetching", download_url)
-        downloaded_file = urllib.request.urlopen(download_url).info()
+        downloaded_file = urllib.request.urlopen(download_url)
         info = downloaded_file.info()
 
-        header = {}
+        headers = {}
 
-        for header in ("Content-Length",):
-            value = info.getheader(header)
+        for header_name in ("Content-Length",):
+            value = info.get(header_name)
             if value:
-                print("copy header:", header, value)
-                header[header] = value
+                print("copy header:", header_name, value)
+                headers[header_name] = value
 
         if name_writer.content_type:
-            header["Content-Type"] = name_writer.content_type
+            headers["Content-Type"] = name_writer.content_type
 
         if name_writer.file_extension:
-            header["Content-Disposition"] = "inline; filename=collection.%s" % (
-                name_writer.file_extension.encode("utf-8", "ignore")
+            headers["Content-Disposition"] = "inline; filename=collection.%s" % (
+                name_writer.file_extension
             )
 
         def readdata():
@@ -466,7 +468,7 @@ class Application:
                     break
                 yield data
 
-        return HTTPResponse(output=readdata(), header=header)
+        return HTTPResponse(output=readdata(), header=headers)
 
     def do_zip_post(self, collection_id, post_data, _):
         params = self._get_params(post_data, collection_id=collection_id)
@@ -479,11 +481,16 @@ class Application:
         pod_api_url = params.pod_api_url
         if pod_api_url:
             response = requests.post(pod_api_url, data=b"any")
+            print(f"DEBUG do_zip_post: POST {pod_api_url!r} -> {response.status_code} body={response.text[:500]!r}", flush=True)
+            if not response.ok:
+                return self.error_response(
+                    f"PediaPress API returned {response.status_code}: {response.text[:200]}"
+                )
             result = response.json()
-            post_url = result["post_url"].encode("utf-8")
+            post_url = result["post_url"]
             response = {
                 "state": "ok",
-                "redirect_url": result["redirect_url"].encode("utf-8"),
+                "redirect_url": result["redirect_url"],
             }
         else:
             try:

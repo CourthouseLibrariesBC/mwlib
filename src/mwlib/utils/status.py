@@ -123,4 +123,4 @@ class Status:
                 )
             os.rename(self.filename + '.tmp', self.filename)
         except Exception as exc:
-            log.ERROR(f'Could not write status file {self.filename!r}: {exc}')
+            log.error(f'Could not write status file {self.filename!r}: {exc}')

@@ -1,7 +1,7 @@
 if __name__ == "__main__":
     from gevent import monkey
 
-    monkey.patch_all()
+    monkey.patch_all(ssl=False)
 
 import debugpy
 
@@ -57,6 +57,7 @@ def get_collection_dir(collection_id):
 def system(args, timeout=None):
     stime = time.time()
 
+    print(f"DEBUG system(): running {garble_password(args)!r}", flush=True)
     retcode, stdout = proc.run_cmd(args, timeout=timeout)
 
     d = time.time() - stime
@@ -80,6 +81,8 @@ def system(args, timeout=None):
         )
 
     writemsg()
+    if stdout:
+        sys.stderr.write(f"--- subprocess stdout ---\n{stdout}\n--- end subprocess stdout ---\n")
 
 
 def _get_args(
@@ -213,9 +216,12 @@ class Commands:
                 timeout=120 * 60, # Two hour timeout
             )
             
-            mb = myjson.loads(metabook_data)
+            if metabook_data:
+                mb = myjson.loads(metabook_data)
+                book_title = mb.title or "Clicklaw Custom Book"
+            else:
+                book_title = "Clicklaw Custom Book"
             print("rpc_render metabook raw JSON: ", metabook_data)
-            book_title = mb["title"] or "Clicklaw Custom Book"
             safe_title = fs_escape(book_title)
             book_file = f"{safe_title}.{name2writer[writer].file_extension}"
             outfile = getpath(book_file)

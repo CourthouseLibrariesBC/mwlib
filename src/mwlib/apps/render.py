@@ -92,20 +92,19 @@ def finish_render(writer, options, zip_filename, status):
 
 def write_traceback(options, exc, status):
     status(status="error")
-    error_file = options.get("error_file")
-    if error_file:
+    error_file_path = options.get("error_file")
+    if error_file_path:
         file_descriptor, tmpfile = tempfile.mkstemp(
-            dir=os.path.dirname(error_file)
+            dir=os.path.dirname(error_file_path)
         )
-        error_file = os.fdopen(file_descriptor, "wb")
-        if isinstance(exc, WriterError):
-            error_file.write(str(exc))
-        else:
-            error_file.write("traceback\n")
-            traceback.print_exc(file=error_file)
-        error_file.write(f"sys.argv={unorganized.garble_password(sys.argv)!r}\n")
-        error_file.close()
-        os.rename(tmpfile, error_file)
+        with os.fdopen(file_descriptor, "w", encoding="utf-8") as error_file:
+            if isinstance(exc, WriterError):
+                error_file.write(str(exc))
+            else:
+                error_file.write("traceback\n")
+                traceback.print_exc(file=error_file)
+            error_file.write(f"sys.argv={unorganized.garble_password(sys.argv)!r}\n")
+        os.rename(tmpfile, error_file_path)
 
 @click.command()
 @click.option("-o", "--output", help="write output to OUTPUT")
@@ -279,6 +278,7 @@ def main(
     writer, writer_options = get_writer_from_options(
         options
     )
+    print(f"DEBUG mw-render start: options={options!r}", file=sys.stderr, flush=True)
     init_tmp_cleaner()
     status = Status(status_file, progress_range=(1, 33))
     status(progress=0)
@@ -299,6 +299,8 @@ def main(
         os.rename(tmpout, output)
         finish_render(writer, options, zip_filename, status)
     except Exception as exc:
+        print(f"DEBUG mw-render exception: {exc!r}", file=sys.stderr, flush=True)
+        traceback.print_exc(file=sys.stderr)
         write_traceback(options, exc, status)
         raise RenderException("ERROR: %s" % exc) from exc
     finally:
@@ -336,7 +338,7 @@ def get_environment(options):
             if err.errno != errno.ENOENT:
                 raise
     env = wiki.make_wiki(zip_filename)
-    status = Status(options.status_file, progress_range=(34, 100))
+    status = Status(options.get("status_file"), progress_range=(34, 100))
     return env, status, zip_filename
 
 def show_writer_info(name):
