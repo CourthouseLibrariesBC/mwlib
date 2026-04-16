@@ -16,6 +16,9 @@ RUN apt-get update && \
 
 RUN rm -f /.mediawiki-initialized
 
+# Increase PHP upload limits from default 2MB to 10MB
+RUN echo "upload_max_filesize = 10M\npost_max_size = 11M" > /usr/local/etc/php/conf.d/uploads.ini
+
 # Keys are not available in the repo.
 # Request them from your admin.
 COPY ./mediawiki/keys/* /app/.ssh/

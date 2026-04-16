@@ -178,6 +178,7 @@ $wgEnableUploads  = true;
 $wgVerifyMimeType = false;
 $wgFileExtensions = array_merge($wgFileExtensions, array('svg', 'doc', 'xls', 'mpp', 'pdf','ppt','pptx','xlsx','jpg','tiff','odt','odg','ods','odp','docx','epub'));
 $wgAllowJavaUploads = true;
+$wgMaxUploadSize = 1024 * 1024 * 10; // 10 MB
 $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 $wgImageMagickTempDir = "/tmp";
