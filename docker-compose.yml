@@ -3,7 +3,10 @@
 # Setup a custom entry in /etc/hosts for localhost (e.g. mediawiki)
 # then access via "http://mediawiki"
 #
-# Edit the .env file with your PUBLIC_HOSTNAME 
+# Edit the .env file with your PUBLIC_HOSTNAME
+#
+# First-time setup:  docker compose --profile init up
+# Normal startup:    docker compose up
 #
 
 services:
@@ -33,20 +36,13 @@ services:
         TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY}
         TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
     restart: always
-    # TODO: start here
-    # command:
-      # See also CMD, ENTRYPOINT
     depends_on:
-      - wiki-database
-        #    ports:
-        #      - 8080:80
+      wiki-database:
+        condition: service_healthy
     volumes:
       - mediawiki_html:/var/www/html
       - ./certbot-www:/var/www/certbot
-        #      - ./mediawiki/webroot/extensions:/var/www/html/extensions
-#      - ./mediawiki/webroot/images:/var/www/html/images
       - ./mediawiki/defaults/LocalSettings.default:/var/www/html/defaults/LocalSettings.default
-      - ./mediawiki/init.sh:/init.sh
       - ./cache:/app/cache
     environment:
       LANG: C.UTF-8
@@ -74,6 +70,43 @@ services:
     expose:
       - "9000"
 
+  db-init:
+    platform: linux/amd64
+    profiles: ["init"]
+    build:
+      context: .
+      dockerfile: docker/Mediawiki.Dockerfile
+      args:
+        PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+        PRODUCTION_SSH_HOST: ${PRODUCTION_SSH_HOST}
+        DATA_IMPORT_USER: ${DATA_IMPORT_USER}
+    depends_on:
+      wiki-database:
+        condition: service_healthy
+    volumes:
+      - mediawiki_html:/var/www/html
+      - ./cache:/app/cache
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME}
+      WIKI_NAME: ${WIKI_NAME}
+      WIKI_ADMIN_PASSWORD: ${WIKI_ADMIN_PASSWORD}
+      PRODUCTION_SSH_HOST: ${PRODUCTION_SSH_HOST}
+      DATA_IMPORT_USER: ${DATA_IMPORT_USER}
+      DB_SERVER: ${DB_SERVER}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      EMAIL_CONTACT: ${EMAIL_CONTACT}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+    command: ["/db-init.sh"]
+    restart: "no"
+
   wiki-database:
     platform: linux/amd64
     image: mariadb:11.6.2
@@ -85,6 +118,11 @@ services:
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - 3306:3306
     volumes:
@@ -126,11 +164,11 @@ services:
       --port 8090
       --numprocs 1
       -c makezip
-      # nslave 
-      # --cachedir /app/cache 
-      # --host q_serve 
+      # nslave
+      # --cachedir /app/cache
+      # --host q_serve
       # --port 8090
-      # --numprocs 2 
+      # --numprocs 2
       # -c makezip
     ports:
       - "5678:5678"
@@ -160,7 +198,7 @@ services:
       GEVENT_SUPPORT: True
     command: >
       python
-      -u -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5680 
+      -u -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5680
       -m mwlib.core.nserve q_serve:8090
     expose:
       - "8899"
@@ -224,7 +262,7 @@ services:
       - ./certbot:/var/lib/letsencrypt
       - ./certs:/etc/letsencrypt/
       - ./cache:/app/cache
-    expose:  
+    expose:
       - "80"
     ports:
       - "80:80"
@@ -238,23 +276,12 @@ services:
       - ./certbot-www:/var/www/certbot
       - ./certs:/etc/letsencrypt/
       - ./certbot:/var/lib/letsencrypt
-#    restart: unless-stopped
-#    entrypoint: ["sleep", "infinity"]  # Keeps the container running
     environment:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
     command: renew
-        #    entrypoint: >
-        #      /bin/sh -c 
-        #      "trap exit TERM; 
-        #      while :; do
-        #      certbot renew --webroot -w /var/www/certbot --quiet;
-        #      sleep 12h &
-        #      wait $${!};
-        #      done"
 
 
 volumes:
   db:
   mediawiki_html:
-
