@@ -480,12 +480,19 @@ class Application:
 
         pod_api_url = params.pod_api_url
         if pod_api_url:
-            # pediapress.com/api/collections/ requires both fields in the form body
+            # pediapress.com/api/collections/ requires both fields in the form body.
+            # Browser-like User-Agent helps pass Cloudflare bot checks on datacenter IPs.
             response = requests.post(
                 pod_api_url,
                 data={
                     "command": post_data.get("command", "zip_post"),
                     "metabook": post_data["metabook"],
+                },
+                headers={
+                    "User-Agent": (
+                        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    ),
                 },
             )
             print(f"DEBUG do_zip_post: POST {pod_api_url!r} -> {response.status_code} body={response.text[:500]!r}", flush=True)
