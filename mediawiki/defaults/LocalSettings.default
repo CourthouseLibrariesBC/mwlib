@@ -2,6 +2,10 @@
 
 $devLive = getenv("PUBLIC_HOSTNAME") == str_replace("console.", "", getenv("PRODUCTION_SSH_HOST")) ? "live" : "dev";
 
+// Auto-detected: true when PUBLIC_HOSTNAME isn't a fully-qualified domain
+// (i.e. "mediawiki", "localhost", or any /etc/hosts mapping pointing at the dev box).
+$isLocal = !is_fully_qualified_domain(getenv("PUBLIC_HOSTNAME"));
+
 #Do jobs realtime:
 $wgRunJobsAsync = false;
 
@@ -374,8 +378,9 @@ $bwScriptsDirectory = 'scripts';
 
 
 // CloudFlare Turnstile + ConfirmEdit
+// Disabled when $isLocal is true (no captcha for local dev).
 
-if ( !empty(getenv('TURNSTILE_SITE_KEY')) ) {
+if ( !$isLocal && !empty(getenv('TURNSTILE_SITE_KEY')) ) {
   wfLoadExtension('ConfirmEdit/Turnstile');
 
   #$wgCaptchaClass = "SimpleCaptcha";
@@ -560,7 +565,9 @@ $wgArticleFeedbackDashboard = true;
 
 # Added June 19 2013 by Nate to let confirmed accounts with email post URLs without math capture
 #$wgGroupPermissions['user']['skipcaptcha'] = true;
-$wgCaptchaTriggers['edit'] = true;
+if ( !$isLocal ) {
+  $wgCaptchaTriggers['edit'] = true;
+}
 
 
 # Permissions

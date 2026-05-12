@@ -69,5 +69,9 @@ class PODClient:
 
 
 def podclient_from_serviceurl(serviceurl):
-    response = requests.post(serviceurl, data=b"any").json()
+    response = requests.post(
+        serviceurl,
+        data=b"any",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    ).json()
     return PODClient(response["post_url"], redirecturl=response["redirect_url"])

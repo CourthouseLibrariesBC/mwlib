@@ -480,7 +480,14 @@ class Application:
 
         pod_api_url = params.pod_api_url
         if pod_api_url:
-            response = requests.post(pod_api_url, data=b"any")
+            # pediapress.com/api/collections/ requires both fields in the form body
+            response = requests.post(
+                pod_api_url,
+                data={
+                    "command": post_data.get("command", "zip_post"),
+                    "metabook": post_data["metabook"],
+                },
+            )
             print(f"DEBUG do_zip_post: POST {pod_api_url!r} -> {response.status_code} body={response.text[:500]!r}", flush=True)
             if not response.ok:
                 return self.error_response(

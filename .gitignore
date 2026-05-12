@@ -57,3 +57,4 @@ nginx.conf
 mediawiki/webroot/images
 mediawiki/webroot/extensions
 mediawiki/webroot/info.php
+.claude
