@@ -342,7 +342,6 @@ $wgBlockDisablesLogin=true;
 $wgCollectionFormats = array(
     'rl' => 'PDF', # enabled by default
     'odf' => 'ODT',
-    'epub' => 'ebook (EPUB)',
 );
 
 // Remove a4 option

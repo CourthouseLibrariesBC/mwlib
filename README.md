@@ -39,6 +39,8 @@ Move the `nginx.conf.default` to `nginx.conf`. If you are running the system on 
 
 And then run:
 
+    $ docker build base
+    $ docker compose --profile init up # Imports initial data and performs setup
     $ docker compose up --build
 
 You can leave `--build` off in subsequent runs to maintain the existing installation.
